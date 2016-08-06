@@ -18,6 +18,11 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
+/*
+ *
+ * @property LoginViewModel $LoginViewModel
+ * */
+
 App::uses('AppController', 'Controller');
 
 /**
@@ -73,4 +78,89 @@ class PagesController extends AppController {
 			throw new NotFoundException();
 		}
 	}
+
+    public  function login()
+    {
+        if ($this->request->is('post'))
+        {
+            $this->loadModel("LoginViewModel");
+            $this->LoginViewModel->set($this->request->data);
+
+            if ($this->LoginViewModel->validates())
+            {
+                $this->loadModel("User");
+                $this->User->recursive = 0;
+                $this->User->set(array('password' => $this->LoginViewModel->data['LoginViewModel']['password']));
+                $foundUser = $this->User->find(
+                    "first",
+                    array(
+                        "conditions" => array(
+                            'username' => $this->LoginViewModel->data['LoginViewModel']['username'],
+                            'password' => $this->LoginViewModel->data['LoginViewModel']['password'])));
+
+                if(!isset($foundUser) || empty($foundUser))
+                {
+                    $this->Session->setFlash(__('User not found!'), "default", array(
+                        "class" => "alert alert-danger"
+                    ));
+                    return;
+                }
+                //todo: load roles
+
+                unset($this->request->data);
+                unset($foundUser[$this->User->alias]["password"]);
+                //TODO: encrypt password
+                $this->Auth->login($foundUser[$this->User->alias]);
+                $paths = explode("/", $this->referer());
+                $endToken = end($paths);
+                $this->redirect(strcmp($endToken, "login") == 0 ? $this->Auth->redirectUrl() :$this->referer());
+            }
+            $this->Session->setFlash(__('Please enter all information required'), "default", array(
+                "class" => "alert alert-danger"
+            ));
+
+        }
+
+        if ($this->Auth->user() !== null)
+        {
+            $this->redirect(array(
+                "controller" => "pages",
+                "action" => "display",
+                "home"
+            ));
+        }
+
+        unset($this->LoginViewModel);
+        unset($this->request->data);
+        $this->render();
+    }
+
+    public function beforeFilter() {
+        parent::beforeFilter();
+        // Allow users to register and logout.
+        $this->Auth->allow('display', 'login');
+
+        if (isset($this->request->params['prefix'])){
+
+            $prefix = $this->request->params['prefix'];
+            unset($this->request->params['prefix']);
+
+          /*  $redirectParams = array(
+                "plugin" => $this->request->params['plugin'],
+                'controller' => $this->request->params['controller'],
+                'action' => preg_replace('/'. $prefix .'_/','', $this->request->params['action'] ),
+                'named' => $this->request->params['named'],
+                'pass' => $this->request->params['pass'],
+                'prefix' => null,
+                $prefix = false
+            );
+            unset($this->request);*/
+            //$this->redirect($redirectParams);
+
+            $this->request->params['action'] = preg_replace('/'. $prefix .'_/','', $this->request->params['action'] );
+            $this->view = preg_replace('/'. $prefix .'_/','', $this->view );
+            unset($this->request->params[$prefix]);
+        }
+    }
+
 }

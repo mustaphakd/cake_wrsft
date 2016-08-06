@@ -31,4 +31,67 @@ App::uses('Controller', 'Controller');
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
 class AppController extends Controller {
+    public $components = array(
+        'Session',
+        'DebugKit.Toolbar',
+        'Auth' => array(
+            'loginRedirect' => array('controller' => 'accounts', 'action' => 'index'),
+            'logoutRedirect' => array(
+                'controller' => 'pages',
+                'action' => 'display',
+                'home'
+            ),
+            'authenticate' => array(
+                'Form' => array(
+                    'passwordHasher' => 'Blowfish'
+                )
+            ),
+            'authorize' => array('Controller'),
+            'loginAction' => array(
+                'controller' => 'pages',
+                'action' => 'login',
+                'plugin' => null
+            )
+        )
+    );
+
+
+    protected function _getHash($string)
+    {
+        App::uses("Security", "Utility");
+
+        return Security::hash($string, 'sha1');
+    }
+
+    protected  function _generateHash()
+    {
+        $datetime = new DateTime('now', new DateTimeZone('UTC'));
+        $formattedDateTime = $datetime->format("Y-m-d H:i:s");
+        $hash = $this->_getHash($formattedDateTime);
+        return $hash;
+    }
+
+    public function isAuthorized($user){
+        //ToDO: need revise. check prefix before continuing to admin related dash
+        if ($this->params['prefix'] == 'admin' ) {
+            $test = "rse";
+        }
+
+        if ($this->params['prefix'] == 'patron' ) {
+            $test = "rse";
+        }
+        return true;
+
+    }
+
+    public function convert_validationErrors_toString($validationErrors){
+        $text = "";
+        foreach($validationErrors as $pk => $assoc) {
+            foreach ($assoc as $k => $v) {
+                $text .= $pk. " : " . $k ." : " . $v;
+            }
+            $text .= "<br />";
+        }
+        return $text;
+    }
 }

@@ -32,6 +32,7 @@
  * In development mode, you need to click the flash message to continue.
  */
 	Configure::write('debug', 2);
+    Configure::write(   'DebugKit.panels',  array_merge((array)Configure::read('DebugKit.panels')));
 
 /**
  * Configure the Error handler used to handle errors for your application. By default
@@ -149,7 +150,7 @@
  *	`manager_index()` and `/manager/controller/index`
  *
  */
-	//Configure::write('Routing.prefixes', array('admin'));
+Configure::write('Routing.prefixes', array('admin'));
 
 /**
  * Turn off all caching application-wide.
@@ -222,12 +223,12 @@
 /**
  * A random string used in security hashing methods.
  */
-	Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+	Configure::write('Security.salt', '0T81EXhvgz2j1ByZ8O4ct2wxMbuvs3ntWvvBsO7Kn94pLCpUrt7VvDshPYOi2bNYGiAa6HVuSZUDCjy4OG0kktCarqttCgskz3vGMqbEq6j4qS8ey9zUCc54DyygP1Bo');
 
 /**
  * A random numeric string (digits only) used to encrypt/decrypt strings.
  */
-	Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+	Configure::write('Security.cipherSeed', '18655814737857933721532651151353218700173969752134398654779805236107124520406710159015482373906617320782832504529520069307697258');
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
