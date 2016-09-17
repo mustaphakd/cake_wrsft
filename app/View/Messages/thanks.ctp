@@ -6,4 +6,5 @@
  * Time: 4:08 PM
  */
 
-echo $message;
+if (isset($message))
+    echo $message;

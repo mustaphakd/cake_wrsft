@@ -32,10 +32,10 @@
 
             </div>
 
-            <!-- Collect the nav links, forms, and other content for toggling -->
+            <!-- Collect the nav links, forms, and other content for toggling class="active"-->
             <div class="collapse navbar-collapse" id="main-tsarget">
                 <ul class="nav navbar-nav">
-                    <li class="active"><a href="#">products <span class="sr-only">(current)</span></a></li>
+                    <li ><a href="<?php echo $this->Html->url(array("patron" => false, "admin" => false, "controller" => "products", "action" => "index")); ?>"> Products</a></li>
                     <li><a href="<?php echo $this->Html->url(array("patron" => false, "admin" => false, "controller" => "Forums", "action" => "index")); ?>"> Forums</a></li>
                 </ul>
                <!-- <ul class="nav navbar-nav">

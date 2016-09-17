@@ -51,18 +51,18 @@ class UsersController extends AppController {
                     'confirmed' => $item["User"]['confirmed']
                 );
 
-                if (isset($item["User"]['confirmed']) && ! empty($item["User"]['confirmed'])){
+                if (isset($item["User"]['confirmed']) && ! empty($item["User"]['confirmed'])) {
                     $user['active'] = true;
-                    array_push($users, $user);
-                    unset($user);
-                    continue;
+                }else {
+                    $user['active'] = false;
                 }
-                $user['active'] = false;
+
                 array_push($users, $user);
                 unset($user);
             }
         }
         catch(NotFoundException $e){
+            $this->Session->setFlash(__('Users not found ' . $e ));
         }
         $this->set('users', $users);
     }
@@ -103,14 +103,14 @@ class UsersController extends AppController {
                         array_push($roles, $roleId);
                     }
 
-                    $this->loadModel('Role');
+                 /*   $this->loadModel('Role');
                     $foundRoles = $this->Role->find(
                         'all',
                         array(
                             'recursive' => 0,
                             'conditions' => array('Role.id' => $roles)
                         ));
-
+*/
 
                    // if (isset($foundRoles) && !empty($foundRoles)){
                         $this->User->data['Role'] = array('Role' => $roles); // $foundRoles;

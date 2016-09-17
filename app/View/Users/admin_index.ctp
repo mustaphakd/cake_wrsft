@@ -48,6 +48,11 @@
 
         </tbody>
     </table>
+    <?php
+        echo '<div class="col-lg-offset-3">';
+        echo $this->Paginator->numbers(array('first' => 1, 'last' => 1, 'modulus' => 5));
+        echo '</div>';
+    ?>
 <?php  endif ?>
 
 <div class="clearfix"> </div>

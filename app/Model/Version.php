@@ -33,6 +33,7 @@ class Version extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			)
 		),
+        //something like==> "name:value;name:value;name:value;"
 		'product_description_type' => array(
 			'notEmpty' => array(
 				'rule' => array('notEmpty'),
@@ -84,7 +85,22 @@ class Version extends AppModel {
             //)
         ),
         'price' => array(
-        )
+        ),
+        'path' => array(
+            "length" => array(
+                "rule" => array("maxLength", 255),
+                'message' => 'File path is too long'
+            ),
+            'required' => false
+            //'notEmpty' => array(
+                //'rule' => array('notEmpty')
+                //'message' => 'Your custom message here',
+                //'allowEmpty' => false,
+                //'required' => false,
+                //'last' => false, // Stop validation after this rule
+                //'on' => 'create', // Limit validation to 'create' or 'update' operations
+            //)
+        ),
 	);
 
 	//The Associations below have been created with all possible keys, those that are not needed can be removed

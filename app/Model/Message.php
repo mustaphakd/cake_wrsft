@@ -41,24 +41,6 @@ class Message extends AppModel {
 			)
 		),
 		'title' => array(
-			'alphaNumeric' => array(
-				'rule' => array('alphaNumeric')
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			)
-		),
-		'subject' => array(
-			'alphaNumeric' => array(
-				'rule' => array('alphaNumeric')
-				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
-				//'required' => false,
-				//'last' => false, // Stop validation after this rule
-				//'on' => 'create', // Limit validation to 'create' or 'update' operations
-			),
 			'notEmpty' => array(
 				'rule' => array('notEmpty')
 				//'message' => 'Your custom message here',
@@ -68,11 +50,29 @@ class Message extends AppModel {
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations
 			)
 		),
+        'viewed' => array(
+        ),
+        'confirmation' => array(
+			'notEmpty' => array(
+				'rule' => array('notEmpty')
+				//'message' => 'Your custom message here',
+				//'allowEmpty' => false,
+				//'required' => false,
+				//'last' => false, // Stop validation after this rule
+				//'on' => 'create', // Limit validation to 'create' or 'update' operations
+			)
+		),
+        'email' => array(
+            'notEmpty' => array(
+                'rule' => array('notEmpty'),
+                'allowEmpty' => false
+            )
+        ),
 		'body' => array(
 			'notEmpty' => array(
-				'rule' => array('notEmpty')
+				'rule' => array('notEmpty'),
 				//'message' => 'Your custom message here',
-				//'allowEmpty' => false,
+				'allowEmpty' => false
 				//'required' => false,
 				//'last' => false, // Stop validation after this rule
 				//'on' => 'create', // Limit validation to 'create' or 'update' operations

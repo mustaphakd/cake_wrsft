@@ -19,19 +19,12 @@
             "href" => $this->webroot ."img/favicon.png"));
 
     echo $this->Html->css(array(
-        "bootstrap.css","bootstrap.min.css","theme-style.css"
+        "bootstrap.min.css","theme-style.css"
     ));
     echo $this->fetch('css');
 
     echo $this->Html->script(array("jquery.min.js", "bootstrap.min.js", "main.js"))
     ?>
-
-
-
-    <script type="application/x-javascript">
-       /* addEventListener("load",
-            function() { setTimeout(hideURLbar, 0); }, false); function hideURLbar(){ window.scrollTo(0,1); }*/
-    </script>
 
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css' >
     <link href='http://fonts.googleapis.com/css?family=Fauna+One' rel='stylesheet' type='text/css' >

@@ -39,9 +39,12 @@
                 ?>
             </a>
         </div>
-        <div class="top-grid-center col-md-7">
-            <h2>Lorem ipsum dolor sit amet</h2>
-            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+        <div class="top-grid-center col-md-7"> <!-- <?php  //todo: pull this from db in future release. not urgent. Build and article management feature ?> -->
+            <h2>Relevant News</h2>
+            <p>
+                We are releasing the beta version of LeChef, our  integrated solution for small and medium size restaurants and Hotels. <br /> Please go to
+                the product page to get more information.
+            </p>
         </div>
         <div class="top-grid-right col-md-2">
             <ul><!--
@@ -59,25 +62,80 @@
     <div class="container">
         <p><i> </i></p>
         <div class="row">
-            <form>
-                <div class="col-md-6 contact-text-box">
-                    <div>
-                        <span>Name<label>*</label></span>
-                        <input type="text" required/>
-                    </div>
-                    <div>
-                        <span>Email<label>*</label></span>
-                        <input type="text" required/>
-                    </div>
+            <?php
+
+            echo $this->Form->create(null, array("admin" => false, "controller" => "Messages", "action" => "add", "url" => array("controller" => "messages")));
+
+            ?>
+
+            <div class="col-md-6 contact-text-box">
+
+                <div>
+                    <span id="messagename_spn">Title<label>*</label></span>
+                    <?php
+                    echo $this->Form->input("Message.title", array(
+                        "placeholder" => "Provide a title for your message",
+                        'div' => false,
+                        'label' => false,
+                        'error' => false,
+                        "aria-describedby" => "messagename_spn",
+                        "required" => true
+                    ));
+                    ?>
                 </div>
-                <div class="col-md-6 contact-text-textarea">
-                    <div>
-                        <span>Message<label>*</label></span>
-                        <textarea> </textarea>
-                    </div>
-                    <input class="btn btn-danger btn-lg" type="submit" Value="send" />
+                <div>
+                    <span id="messageemail_spn">Email<label>*</label></span>
+                    <?php
+                    echo $this->Form->input("Message.email", array(
+                        "placeholder" => "Email",
+                        'type' => "email",
+                        'div' => false,
+                        AuthComponent::user() === null ? : 'value' => AuthComponent::user("email"),
+
+                        'label' => false,
+                        'error' => false,
+                        "aria-describedby" => "messageemail_spn",
+                        "required" => true
+                    ));
+                    ?>
                 </div>
-            </form>
+            </div>
+
+            <div class="col-md-6 contact-text-textarea">
+                <div>
+                    <span id="mesagebody_spn">Message<label>*</label></span>
+                    <?php
+
+                    echo $this->Form->input("Message.body", array(
+                        "type" => "textarea",
+                        "placeholder" => AuthComponent::user() === null ? "You must log in before being able to submit a message" : " message body",
+                        'div' => false,
+                        'label' => false,
+                        'error' => false,
+                      /*  'row' => "50",
+                        'cols' => "250",
+                        'rows' => "6",
+                        'style' => "margin: 0px; height: 259px;",*/
+                        "aria-describedby" => "mesagebody_spn",
+                        "required" => true
+                    ));
+
+                    ?>
+                </div>
+                <!--<input class="btn btn-danger btn-lg" type="submit" Value="send" />-->
+            </div>
+
+            <?php
+
+            if (AuthComponent::user() !== null)
+            echo $this->Form->end(array(
+                "label" => "send",
+                "div" => false,
+                "class" => 'btn btn-danger btn-lg',
+                "after" => '</div>'
+            ))
+
+             ?>
         </div>
     </div>
 </div>

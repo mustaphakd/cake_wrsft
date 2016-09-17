@@ -37,6 +37,8 @@ Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home
  */
 	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
 
+    Router::mapResources('FileSystem');
+    Router::parseExtensions('json');
 /**
  * Load all plugin routes. See the CakePlugin documentation on
  * how to customize the loading of plugin routes.
