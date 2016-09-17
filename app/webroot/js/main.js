@@ -39,10 +39,10 @@ function controlsValueMatch(element , deuxieme)
 
         //root element of component
         this.$element = $(element);
-        this.folders =
+        this.folders = null
         this.files = null
-        this.template = '',
-        this.options = options,
+        this.template = ''
+        this.options = options
         this.$modal = null
 
     }
@@ -75,7 +75,7 @@ function controlsValueMatch(element , deuxieme)
         this.hookEvts()
         //load data
         var tmpPrx = this
-        var folderPath =  this.RetrieveFolderPortion(this.options.path)
+        var folderPath =  this.getFolderPath() || this.RetrieveFolderPortion(this.options.path)
         this.getFoldersNdFiles(folderPath, function(){
             //debugger
             var ds = $('input[type=hidden]#ProductHiddends')[0].value
@@ -110,20 +110,20 @@ function controlsValueMatch(element , deuxieme)
 
         var ds = $('input[type=hidden]#ProductHiddends')[0].value
 
-        var modalContent = rootContainer.append('<div class="modal-content">' +
+        rootContainer.append('<div class="modal-content">' +
         '<div class="modal-header"><span class="pull-left" style="text-transform: uppercase; margin-top: -8px">' +
         '<strong>Manage Media</strong></span>' +
         '<span class="pull-left filesys-path">' +  ds + 'root' + (this.options.path.startsWith(ds) ? this.RetrieveFolderPortion(this.options.path) : (ds + this.RetrieveFolderPortion(this.options.path))) +'</span>' +
         '<span class="close" data-dismiss="modal">close</span></div>' +
-        '<span class="filesys-wrapper pull-right filesys-newdir" title="Create a new directory" >' +
-            '<span class="glyphicon glyphicon-plus" style="font-size: 25px"></span>' +
-            '<span>Create</span>' +
+        '<span class="filesys-wrapper pull-right filesys-newdir" style="top: 40px;right: 0px; position: absolute;" title="Create a new directory" >' +
+            '<span class="glyphicon glyphicon-plus" style="font-size: 25px; color:darkgray;"></span>' +
+            '<span style="color: #000000">Create</span>' +
         '</span>'+
-        '<span class="filesys-wrapper pull-right filesys-remdir" title="Delete directory" >' +
-        '<span class="glyphicon glyphicon-minus" style="font-size: 25px"></span>' +
-        '<span>Delete</span>' +
-        '</span>'+
-        '<div class="modal-body" style="overflow-y: auto;max-height: 200px;">  </div>' +
+        '<a class="btn filesys-wrapper pull-right filesys-remdir" title="Delete directory" style="top: 100px;right: 0px;position: absolute;" >' +
+        '<span class="glyphicon glyphicon-minus" style="font-size: 25px; color:darkgray;"></span>' +
+        '<span style="color: #000000; display: block">Delete</span>' +
+        '</a>'+
+        '<div class="modal-body" style="overflow-y: auto;max-height: 200px;min-height: 200px;">  </div>' +
         '<div class="modal-footer">' +
         '<div class="pull-left"><input type="file" /><a class="btn glyphicon glyphicon-upload" ></a></div><a class="btn btn-primary">Select</a>' +
         '</div>' +
@@ -176,6 +176,10 @@ function controlsValueMatch(element , deuxieme)
 
         this.$modal.find('.modal-dialog .modal-content span.filesys-newdir')
             .off('click.' + mediaviewNamespace)
+
+        this.$modal.find('.modal-dialog .modal-content a.filesys-remdir')
+            .off('click.' + mediaviewNamespace)
+
     }
 
     MediaView.prototype.configureAndDisplayControls = function () {
@@ -186,6 +190,7 @@ function controlsValueMatch(element , deuxieme)
         fileInput.files = null
         fileInput.value = ''
         icon.parent().next().addClass('disabled').attr('disabled', true)
+        this.$modal.find('.modal-dialog .modal-content a.filesys-remdir').addClass('disabled').attr('disabled', true)
     }
 
     MediaView.prototype.onFileInputChange = function(files){
@@ -222,13 +227,19 @@ function controlsValueMatch(element , deuxieme)
         })
 
         this.$element.on('uploaded.' + mediaviewNamespace, $.proxy(function(){
-            fileInput.files = null
-            fileInput.value = ''
+            fileInput[0].files = null
+            fileInput[0].value = ''
         }))
 
         this.$modal.find('.modal-dialog .modal-content span.filesys-newdir')
             .on('click.' + mediaviewNamespace, function(){
-                prx.createNewDir() })
+                prx.createNewDirectory()
+            })
+
+        this.$modal.find('.modal-dialog .modal-content a.filesys-remdir')
+            .on('click.' + mediaviewNamespace, function(){
+                prx.deleteDirectory()
+            })
 
         this.$element.on('datasync.' + mediaviewNamespace, $.proxy(function(){
 
@@ -248,10 +259,10 @@ function controlsValueMatch(element , deuxieme)
             var fileSys = ''
 
             if (folderTokens.length > 1) {
-                var newArr = folderTokens.splice(folderTokens.length - 1, 1)
+                folderTokens.splice(folderTokens.length - 1, 1)
                 var upPath = ds + folderTokens.join(ds)
 
-             fileSys += '<span data-filesystype="updir" class="filesys-wrapper" title="' + upPath + '"><span class="glyphicon -arrow-up" style="font-size: 25px"></span><span class="filesys-name">...</span></span><br />'
+             fileSys += '<span data-filesystype="updir" class="filesys-wrapper" title="' + upPath + '"><span class="glyphicon glyphicon-arrow-up" style="font-size: 25px; color: darkgray;"></span></span><br />'
             }
 
             folderTokens = null
@@ -276,13 +287,18 @@ function controlsValueMatch(element , deuxieme)
             for(var i = children.length - 1; i >= 0; i--)
                 modalBody[0].removeChild(children[i])
 
-
             $(fileSys).appendTo(modalBody)
             prx.options.pathSelectedFile && prx.setSelectedFile($.trim(prx.options.pathSelectedFile))
 
             modalBody.on('click.' + mediaviewNamespace, '.filesys-wrapper', $.proxy(function(e){
 
                 var that = $(e.currentTarget)
+
+                //========= start auxillary controls update
+
+                prx.$modal.find('.modal-dialog .modal-content a.filesys-remdir').addClass('disabled').attr('disabled', true)
+
+                //======== end
 
                 if ( that.data('filesystype') == 'updir'){ //Updir clicked
                     var attrPath = that.attr('title')
@@ -301,7 +317,6 @@ function controlsValueMatch(element , deuxieme)
                     prx.options.lastClicked = e.currentTarget
                 }else {
 
-                    var oldTest = $(lstclicked).data('filesysdir.' + namespace)
                     $(lstclicked).css('borderColor', 'white')
                     $(lstclicked).data('filesysdir.' + namespace, false)
 
@@ -315,8 +330,10 @@ function controlsValueMatch(element , deuxieme)
 
                 if (itemType == 'dir'){
                     selectbtn[0].text = 'Open'
+                    prx.$modal.find('.modal-dialog .modal-content a.filesys-remdir').removeClass('disabled').removeAttr('disabled', true)
                 }else if (itemType == 'file'){
                     selectbtn[0].text = 'Select'
+                    prx.$modal.find('.modal-dialog .modal-content a.filesys-remdir').removeClass('disabled').removeAttr('disabled', true)
                 }
             }))
 
@@ -327,7 +344,7 @@ function controlsValueMatch(element , deuxieme)
                 $(this).css('borderColor', 'blue')
             })
 
-            modalBody.on('mouseleave.' + mediaviewNamespace, '.filesys-wrapper', function(e){
+            modalBody.on('mouseleave.' + mediaviewNamespace, '.filesys-wrapper', function(){
 
                 var that = $(this)
 
@@ -352,7 +369,7 @@ function controlsValueMatch(element , deuxieme)
         this.showLoader()
         this.$element.trigger('uploading.' + mediaviewNamespace)
         this.options.state = 'uploading'
-        debugger
+
         var fileCntrl = this.$modal.find('.modal-dialog .modal-content .modal-footer input[type="file"]')[0]
         var file = fileCntrl.files[0]
         var formData = new FormData()
@@ -373,15 +390,16 @@ function controlsValueMatch(element , deuxieme)
                 'x-requested-with': 'XMLHttpRequest'
             },
             success: function (data, textStatus, jqXHR) {
-                debugger;
+
                 if(data != null && data.status == "ok")
                 {
-                    this.files.push(fileName)
+                    this.files.push(file.name)
                     this.$element.trigger('uploaded.' + mediaviewNamespace);
 
                 }else{
                     (data.message) && alert(data.message)
                 }
+                this.options.state = 'complete'
                 this.hideLoader()
                 data = null
 
@@ -390,6 +408,7 @@ function controlsValueMatch(element , deuxieme)
             error: function (jqXHR, textStatus, errorThrown) {
                 debugger;
                 alert(textStatus + " " + errorThrown)
+                this.options.state == 'complete'
                 this.hideLoader()
                 this.close()
             }
@@ -419,7 +438,6 @@ function controlsValueMatch(element , deuxieme)
 
             this.showLoader()
 
-            debugger
             $.ajax(this.options.origin + 'FileSystem/setVersionFilePath', {
                 dataType: "json",
                 crossDomain: true,
@@ -460,6 +478,7 @@ function controlsValueMatch(element , deuxieme)
         folderPath.endsWith(ds) || (folderPath = folderPath + ds)
         folderPath = folderPath + folderName
         var prx = this
+        this.$modal.find('.modal-dialog .modal-content a.filesys-remdir').addClass('disabled').attr('disabled', true)
 
         this.getFoldersNdFiles(folderPath, function(){
             prx.setFolderPath(folderPath)
@@ -469,7 +488,7 @@ function controlsValueMatch(element , deuxieme)
 
     }
 
-    MediaView.prototype.createNewDir = function(){
+    MediaView.prototype.createNewDirectory = function(){
 
         var newDir = prompt("New directory name?")
 
@@ -479,7 +498,90 @@ function controlsValueMatch(element , deuxieme)
 
         if (newDir.length == 0) return
 
-        //todo: ajax create dir, and fetch data
+        this.showLoader()
+        var opts = {
+            currentPath: this.getFolderPath(),
+            newDirName: newDir
+        }
+
+        opts = JSON.stringify(opts)
+
+        $.ajax(this.options.origin + 'FileSystem/createDirectory', {
+            dataType: "json",
+            crossDomain: false,
+            method: 'POST',
+            data: opts,
+            processData: false,
+            context: this,
+            jsonp: false,
+            contentType: 'application/json',
+            headers: {
+                'Accept': "application/json",
+                'x-requested-with': 'XMLHttpRequest'
+            },
+            success: function (data, textStatus, jqXHR) {
+
+                if(data != null && data.status == "ok")
+                {
+                    this.getFoldersNdFiles(this.getFolderPath());
+
+                }else{
+                    (data.message) && alert(data.message)
+                    this.hideLoader()
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                alert(textStatus + " " + errorThrown)
+                this.hideLoader()
+            }
+        });
+    }
+
+    MediaView.prototype.deleteDirectory = function(){
+
+        this.showLoader()
+        var dirname = $(this.options.lastClicked).attr('title').trim()
+        var itemType = $(this.options.lastClicked).data('filesystype');
+
+        var opts = {
+            currentPath: this.getFolderPath(),
+            dirName: dirname,
+            fileType: itemType
+        }
+
+        opts = JSON.stringify(opts)
+
+        $.ajax(this.options.origin + 'FileSystem/deleteDirectory', {
+            dataType: "json",
+            crossDomain: false,
+            method: 'POST',
+            data: opts,
+            processData: false,
+            context: this,
+            jsonp: false,
+            contentType: 'application/json',
+            headers: {
+                'Accept': "application/json",
+                'x-requested-with': 'XMLHttpRequest'
+            },
+            success: function (data, textStatus, jqXHR) {
+
+                if(data != null && data.status == "ok")
+                {
+                    this.getFoldersNdFiles(this.getFolderPath());
+
+                }else{
+                    (data.message) && alert(data.message)
+                    this.hideLoader()
+                }
+            },
+            error: function (jqXHR, textStatus, errorThrown) {
+
+                alert(textStatus + " " + errorThrown)
+                this.hideLoader()
+            }
+        });
     }
 
     MediaView.prototype.setSelectedFile = function(filename){
@@ -519,8 +621,8 @@ function controlsValueMatch(element , deuxieme)
         var pathTokens = path.split(ds || '\\')
 
         if(pathTokens[pathTokens.length -1].split('.').length == 2){
-            var tmp =  pathTokens.splice(0, (pathTokens.length -1)).join(ds)
-            return tmp
+            return pathTokens.splice(0, (pathTokens.length -1)).join(ds)
+            //return tmp
         }
 
         return path

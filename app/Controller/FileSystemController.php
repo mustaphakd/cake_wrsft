@@ -10,6 +10,8 @@ App::uses('AppController', 'Controller');
 App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 
+define( 'WWW_FILE_ROOT', WWW_ROOT . 'files' . DS);
+
 /**
  * FileSystem Controller
  *
@@ -24,26 +26,8 @@ class FileSystemController extends AppController{
 
     public $components = array('RequestHandler');
 
-
     public  function directoryAndFiles(){
 
-        $path = '';
-       /* if (!isset($this->request->query['path']) || empty($this->request->query['path'])){  // set path to root
-
-
-            $this->set(array(
-                "filesystem" => array(
-                    'folders' => array('plius', 'encore', 'fdf', 'fadsf', 'sobagodown'),
-                    'files' => array('musmus.msi', 'fondio.msi', 'koro.msi', 'myriam.msi', 'toure.msi', 'kone.msi', 'dougo.msi', 'djeneba.msi', 'maman.msi', 'rahini.msi', 'sosso.msi')
-                ),
-                'status' => 'ok',
-                "message" => "",
-                "_serialize" => array("message", "filesystem", "status")
-            ));
-            return;
-
-        }*/
-//from
         $path = ltrim(trim($this->request->query['path']), DS);
         $tokens = explode(DS, strtolower($path));
 
@@ -51,7 +35,7 @@ class FileSystemController extends AppController{
 
         $path = implode(DS, $tokens);
 // to here goes into an if block so rest of code can be shared with the default that returns root folder
-        $fullPath = WWW_ROOT . "files" . DS . strtolower($path);
+        $fullPath = WWW_FILE_ROOT. strtolower($path);
 
         if (!file_exists($fullPath)){
             $this->setErrorMessage("the following path: " . $this->request->query['path'] . " does not exist");
@@ -75,39 +59,45 @@ class FileSystemController extends AppController{
             "_serialize" => array("message", "filesystem", "status")
         ));
     }
-
     // (3)
-    public function createDirectory($currentPath, $newDirName){
+    public function createDirectory(){
 
-        if (!isset($currentPath) || !isset($newDirName)){
+        if(!isset($this->request->data['currentPath'])  || !isset($this->request->data['newDirName'])){
             $this->setErrorMessage('invalid parameters');
             return;
         }
 
-        $tokens = explode(DS, $currentPath);
+        $newDirName = trim(trim($this->request->data['newDirName'], DS));
+
+        $currentPath = ltrim(trim($this->request->data['currentPath']), DS);
+        $tokens = explode(DS, strtolower($currentPath));
 
         if (count($tokens) == 0){
             $this->setErrorMessage('Invalid path');
             return;
         }
 
-        if($tokens[0] == 'root') array_shift($tokens);
+        ($tokens[0] == 'root') && ($tokens = array_slice($tokens, 1, null, true));
 
-        $currentPath = DS . implode(DS, $tokens);
+        $currentPath = implode(DS, $tokens);
 
-        $fullpath = WWW_ROOT . $currentPath;
+        $fullPath = WWW_FILE_ROOT . $currentPath;
 
-        if (!is_file($fullpath)){
+        if (!is_dir($fullPath)){
             $this->setErrorMessage('Invalid path');
             return;
         }
 
-        $fullpath . DS . strtolower($newDirName) ;
+        $fullPath = $fullPath . DS . strtolower($newDirName) ;
 
-        $dir = new Folder($fullpath, true);
+        $dir = new Folder($fullPath, true);
 
-        if( !is_dir($fullpath)){
-            $this->setErrorMessage('Unable to create ' . $newDirName);
+        if( !is_dir($fullPath)){
+            $this->set(array(
+                'status' => 'er',
+                "message" => 'Unable to create ' . $newDirName,
+                "_serialize" => array("message","status")
+            ));
             return;
         }
 
@@ -118,6 +108,71 @@ class FileSystemController extends AppController{
         ));
     }
 
+    public function deleteDirectory(){
+
+        if (
+            !isset($this->request->data['currentPath'])  ||
+            !isset($this->request->data['dirName']) ||
+            !isset($this->request->data['fileType']) )
+        {
+            $this->setErrorMessage('invalid parameters');
+            return;
+        }
+
+        $dirName = trim(trim($this->request->data['dirName'], DS));
+        $fileType = trim(trim($this->request->data['fileType'], DS));
+
+        $currentPath = ltrim(trim($this->request->data['currentPath']), DS);
+        $tokens = explode(DS, strtolower($currentPath));
+
+        if (count($tokens) == 0){
+            $this->setErrorMessage('Invalid path');
+            return;
+        }
+
+        ($tokens[0] == 'root') && ($tokens = array_slice($tokens, 1, null, true));
+
+        $currentPath = implode(DS, $tokens);
+
+        $fullPath = WWW_FILE_ROOT . $currentPath;
+
+        if (!is_dir($fullPath)){
+            $this->setErrorMessage('Invalid path');
+            return;
+        }
+
+        $fullPath = $fullPath . DS . strtolower($dirName) ;
+
+        if( ( $fileType == 'dir' && !is_dir($fullPath)) || ($fileType == 'file' && !is_file($fullPath))){
+            $this->setErrorMessage('Unable to Delete ' . $dirName . '  .It does not exist' );
+            return;
+        }
+
+        switch($fileType){
+            case 'dir':
+                $fldr = new Folder($fullPath);
+                $fldr->delete($fullPath);
+                if (is_dir($fullPath)){
+                    $this->setErrorMessage('Unable to Delete ' . $dirName  );
+                    return;
+                }
+                break;
+            case 'file':
+                $file = new File($fullPath);
+                $file->delete();
+                if (is_file($fullPath)){
+                    $this->setErrorMessage('Unable to Delete ' . $dirName );
+                    return;
+                }
+                break;
+        }
+
+        $this->set(array(
+            'status' => 'ok',
+            "message" => '',
+            "_serialize" => array("message","status")
+        ));
+    }
     // (2)
     public  function setVersionFilePath(){
 
@@ -140,7 +195,7 @@ class FileSystemController extends AppController{
 
         $path = implode(DS, $path_tokens);
         $relativePath = strtolower($path);
-        $fullPath = WWW_ROOT . "files" . DS . $relativePath ;
+        $fullPath = WWW_FILE_ROOT . $relativePath ;
 
         if (!file_exists($fullPath)){
             $this->setErrorMessage("the following path: " . $filePath . " does not exist");
@@ -173,9 +228,8 @@ class FileSystemController extends AppController{
             "_serialize" => array("message", "status")
         ));
     }
-
     // (4) tobe implemented last
-    public function uploadFile($currentPath){
+    public function uploadFile(){
 
         if (!$this->request->is('post'))
         {
@@ -197,10 +251,15 @@ class FileSystemController extends AppController{
         ($tokens[0] == 'root') && ($tokens = array_slice($tokens, 1, null, true));
 
         $path = implode(DS, $tokens);
-        $fullPath = WWW_ROOT . "files" . DS . strtolower($path);
+        $fullPath = WWW_FILE_ROOT . strtolower($path);
 
         if(!is_dir($fullPath)){
             $this->setErrorMessage('Invalid path');
+            return;
+        }
+
+        if(is_file($fullPath . DS . strtolower($this->request->params['form']['idia']['name']))){
+            $this->setErrorMessage('File with similar name already exist');
             return;
         }
 
@@ -221,6 +280,6 @@ class FileSystemController extends AppController{
     public function beforeFilter(){
         parent::beforeFilter();
 
-        $this->Auth->allow();
+        //$this->Auth->allow();
     }
 }
