@@ -91,13 +91,14 @@ class PagesController extends AppController {
                 $this->loadModel("User");
                 $this->loadModel("Role");
                 $this->User->recursive = 1;
-                $this->User->set(array('password' => $this->LoginViewModel->data['LoginViewModel']['password']));
+                //$this->User->set(array('password' => $this->LoginViewModel->data['LoginViewModel']['password']));
+                $passwordHasher = new BlowfishPasswordHasher();
+                $pwd = $this->LoginViewModel->data['LoginViewModel']['password'];
                 $foundUser = $this->User->find(
                     "first",
                     array(
                         "conditions" => array(
-                            'username' => $this->LoginViewModel->data['LoginViewModel']['username'],
-                            'password' => $this->LoginViewModel->data['LoginViewModel']['password'])));
+                            'username' => $this->LoginViewModel->data['LoginViewModel']['username'])));
 
                 if(!isset($foundUser) || empty($foundUser))
                 {
@@ -107,8 +108,22 @@ class PagesController extends AppController {
                     return;
                 }
 
+                $matched = $passwordHasher->check($pwd, $foundUser['User']['password']);
+
+                if(! $matched)
+                {
+                    $this->Session->setFlash(
+                        __('Invalid password, account will be disactivated after a number of retrials'),
+                        "default", array(
+                            "class" => "alert alert-danger"
+                    ));
+                    return;
+                }
+
+
                 unset($foundUser[$this->User->alias]["password"]);
-                $userToken = array_merge($foundUser[$this->User->alias], $foundUser[$this->Role->alias]);
+                $userToken = array_merge($foundUser[$this->User->alias], array('Role' =>  $foundUser[$this->Role->alias]));
+                //array_merge($userToken['Role'];
 
 
                 unset($this->request->data);

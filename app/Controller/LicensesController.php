@@ -206,6 +206,20 @@ class LicensesController extends AppController{
     public function beforeFilter(){
         parent::beforeFilter();
 
-        //$this->Auth->allow();
+        if(!$this->Auth->user())
+            return;
+
+        $this->Auth->allow('index', 'extend', 'renew', 'inventory','purchase');
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        $this->WrsftAuth->ConstraintRolesAction(
+            array(
+                'admin' => array('admin_index', 'admin_add', 'admin_view', 'admin_edit', 'admin_delete'),
+                'manager' => array('admin_index', 'admin_add', 'admin_view', 'admin_edit'),
+                'support' => array('admin_index', 'admin_view')
+            )
+        );
+
     }
 }

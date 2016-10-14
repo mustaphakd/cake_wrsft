@@ -174,5 +174,20 @@ class PaymentsController extends AppController{
 
     public function beforeFilter(){
 
+        if(!$this->Auth->user())
+            return;
+
+        $this->Auth->allow('index', 'cashier', 'checkout', 'checkout_confirm','history');
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        $this->WrsftAuth->ConstraintRolesAction(
+            array(
+                'admin' => array('admin_history'),
+                'manager' => array('admin_history'),
+                'support' => array('admin_history')
+            )
+        );
+
     }
 }

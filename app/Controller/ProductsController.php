@@ -384,15 +384,20 @@ class ProductsController extends AppController {
  * @param string $id
  * @return void
  */
-	public function admin_edit($productId) {
+	public function admin_edit($productId = null) {
 
-        if (!isset($productId) && !isset($this->request->params["named"]["productId"])){
+        if (
+            !isset($productId) &&
+            !isset($this->request->params["named"]["productId"])&&
+            !isset($this->passedArgs['productId']))
+        {
 			throw new NotFoundException(__('Invalid product'));
 		}
 
         if (!isset($productId))
         {
             $productId = $this->request->params["named"]["productId"];
+            //$productId$this->passedArgs['productId'];
         }
 
         $id = pack("H*",$productId );
@@ -451,6 +456,20 @@ class ProductsController extends AppController {
         parent::beforeFilter();
 
         $this->Auth->allow(array("index", "view"));
+
+        if($this->Auth->user()){
+            $this->Auth->allow('download');
+        }
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        $this->WrsftAuth->ConstraintRolesAction(
+            array(
+                'admin' => array('admin_index', 'admin_add', 'admin_view', 'admin_edit', 'admin_delete', 'admin_version_add', 'admin_version_edit', 'admin_version_delete'),
+                'manager' => array('admin_index', 'admin_add', 'admin_view', 'admin_edit','admin_version_add', 'admin_version_edit'),
+                'support' => array('admin_index', 'admin_view')
+            )
+        );
     }
 
     private function validateVersionAvailable()

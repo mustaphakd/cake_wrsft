@@ -298,5 +298,18 @@ class MessagesController extends AppController {
         parent::beforeFilter();
         // Allow users to register and logout.
         $this->Auth->allow('add');
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        //perhaps messages should hierarchical. only top level get displayed in view_index and child messages
+            // are simply replies
+        $this->WrsftAuth->ConstraintRolesAction(
+            array(
+                'admin' => array('admin_index', 'admin_view', 'admin_delete', 'admin_reply'),
+                'manager' => array('admin_index', 'admin_view',  'admin_reply'),
+                'support' => array('admin_index', 'admin_view', 'admin_reply')
+            )
+        );
+
     }
 }

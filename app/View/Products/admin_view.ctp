@@ -97,7 +97,7 @@
                     echo '</div>'; // row end
                 }
 
-                echo $this->Form->create(null, array("admin" => true, "controller" => "products", "action" => "edit", "id" => $product['id'], "url" => array("controller" => "products")));
+                echo $this->Form->create(null, array('type' => 'GET', "admin" => true, "controller" => "products", "action" => "edit", "productId" => $product['id'], "url" => array("controller" => "products", "productId" => $product['id'])));
                 echo $this->Form->end(array(
                     "label" => "Edit Product",
                     "div" => "row",

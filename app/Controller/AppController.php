@@ -27,6 +27,8 @@ App::uses('Controller', 'Controller');
  * Add your application-wide methods in the class below, your controllers
  * will inherit them.
  *
+ * @property WrsftAuthComponent $WrsftAuth
+ *
  * @package		app.Controller
  * @link		http://book.cakephp.org/2.0/en/controllers.html#the-app-controller
  */
@@ -98,13 +100,19 @@ class AppController extends Controller {
     public function isAuthorized($user){
         //ToDO: need revise. check prefix before continuing to admin related dash
         if ($this->params['prefix'] == 'admin' ) {
-            $test = "rse";
+            //$test = "rse";
         }
 
         if ($this->params['prefix'] == 'patron' ) {
-            $test = "rse";
+            //$test = "rse";
         }
-        return true;
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        if ($this->WrsftAuth->IsInEitherRoles('admin'))
+            return true;
+
+        return false;
 
     }
 

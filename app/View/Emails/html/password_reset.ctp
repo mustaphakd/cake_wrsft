@@ -13,13 +13,9 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
-?>
-<?php
-   // $content = explode("\n", $content);
-
 
     echo '<fieldset>';
-    echo    '<legend>Click link below to reset your password</legend>'
+    echo    '<legend> '. $contentTitle.'</legend>'
         . '<div class="row">'
         .'<div class="col-lg-6">';
 

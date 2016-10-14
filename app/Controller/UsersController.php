@@ -212,7 +212,12 @@ class UsersController extends AppController {
                     $hash
                 ), true);
 
-               // $this->SendPasswordResetEmail($this->request->data["email"], $href);
+                //todo: validate email
+                $this->SendEmail(
+                    $this->request->data["email"],
+                    $href,
+                    'Click link below to reset your password',
+                    "Password reset request");
                 $this->Session->setFlash('<a href="'. $href .'"> '. $href .' </a>');
 
                 $this->set(
@@ -296,7 +301,12 @@ class UsersController extends AppController {
 
 
                 //todo: validate sending of email
-                $this->SendPasswordResetEmail($userEmail, $href);
+                $this->SendEmail(
+                    $userEmail,
+                    $href,
+                    'Click link below to activate your account',
+                    'Account Activation');
+
                 $this->Session->setFlash('<a href="'. $href .'">  </a>'); //$href
 
                 $this->set("message", "An email has been sent to you. click on the link to active your account.");
@@ -364,7 +374,24 @@ class UsersController extends AppController {
         return;
     }
 
-    private function SendPasswordResetEmail($email, $href)
+    /**
+     * @param $email
+     * @param $href
+     * @param $contentTitle
+     * @param $subject
+     * @param string $from
+     * @param string $emailNameSource
+     * @param string $format
+     */
+    private function SendEmail(
+        $email,
+        $href,
+        $contentTitle,
+        $subject,
+        $from = 'services@worosoft.com',
+        $emailNameSource = 'WoroSoft',
+        $format = 'html'
+         )
     {
         if (empty($email) ||
             $email == null
@@ -377,20 +404,16 @@ class UsersController extends AppController {
 
         $Email = new CakeEmail();
         $Email->template('passwordReset', 'email')//view, layout
-            ->emailFormat('html')
-            ->from(array('services@worosoft.com' => 'WoroSoft'))
+            ->emailFormat($format)
+            ->from(array( $from => $emailNameSource ))
             ->to($email)
-            ->subject("Password reset request")
-            ->viewVars(array('content' => $href))
+            ->subject($subject)
+            ->viewVars(
+                array(
+                    'content' => $href,
+                    'contentTitle' => $contentTitle
+                ))
             ->send();
-
-        /*$this->Email->to = $email;
-        $this->Email->from = "services@worosoft.com";
-        $this->Email->subject = "Password reset request";
-
-        $this->Email->sendAs = "html";
-
-        $this->Email->send($href,"passwordReset", "email");*/
     }
 
     private function doesUserExist($user)
@@ -414,6 +437,16 @@ class UsersController extends AppController {
             'confirm_account',
             'register',
             'create_default_accounts');
+
+        $this->WrsftAuth = $this->Components->load('WrsftAuth');
+        $this->WrsftAuth->initialize($this);
+        $this->WrsftAuth->ConstraintRolesAction(
+            array(
+                'admin' => array('admin_index', 'admin_add', 'admin_detail', 'admin_edit'),
+                'manager' => array('admin_index', 'admin_detail'),
+                'support' => array('admin_index')
+            )
+        );
     }
 
     public function logout() {
