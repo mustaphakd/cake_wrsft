@@ -65,10 +65,34 @@ class AppController extends Controller {
 
     protected  function _generateHash()
     {
-        $datetime = new DateTime('now', new DateTimeZone('UTC'));
-        $formattedDateTime = $datetime->format("Y-m-d H:i:s");
+        //$datetime = new DateTime('now', new DateTimeZone('UTC'));
+        //$formattedDateTime = $datetime->format("Y-m-d H:i:s");
+        $formattedDateTime =  $this->udate('Y-m-d H:i:s.u T');
         $hash = $this->_getHash($formattedDateTime);
         return $hash;
+    }
+
+    //http://php.net/manual/en/datetime.format.php
+    protected function udate($strFormat = 'u', $uTimeStamp = null)
+    {
+
+        // If the time wasn't provided then fill it in
+        if (is_null($uTimeStamp))
+        {
+            $uTimeStamp = microtime(true);
+        }
+
+        // Round the time down to the second
+        $dtTimeStamp = floor($uTimeStamp);
+
+        // Determine the millisecond value
+        $intMilliseconds = round(($uTimeStamp - $dtTimeStamp) * 1000000);
+        // Format the milliseconds as a 6 character string
+        $strMilliseconds = str_pad($intMilliseconds, 6, '0', STR_PAD_LEFT);
+
+        // Replace the milliseconds in the date format string
+        // Then use the date function to process the rest of the string
+        return date(preg_replace('`(?<!\\\\)u`', $strMilliseconds, $strFormat), $dtTimeStamp);
     }
 
     public function isAuthorized($user){

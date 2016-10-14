@@ -5,6 +5,8 @@
  * Date: 5/12/2016
  * Time: 4:08 PM
  */
+
+$this->assign('title', 'Authenticate')
 ?>
 
 <div class="payment-online-form-left">

@@ -86,6 +86,12 @@ class Version extends AppModel {
         ),
         'price' => array(
         ),
+        'download_count' => array(
+        ),
+        'installer_product_id' => array(
+        ),
+        'build' => array(
+        ),
         'path' => array(
             "length" => array(
                 "rule" => array("maxLength", 255),
@@ -166,7 +172,20 @@ class Version extends AppModel {
 			'exclusive' => '',
 			'finderQuery' => '',
 			'counterQuery' => ''
-		)
+		),
+        'Download' => array(
+            'className' => 'Download',
+            'foreignKey' => 'version_id',
+            'dependent' => false,
+            'conditions' => '',
+            'fields' => '',
+            'order' => '',
+            'limit' => '',
+            'offset' => '',
+            'exclusive' => '',
+            'finderQuery' => '',
+            'counterQuery' => ''
+        )
 	);
 
 }

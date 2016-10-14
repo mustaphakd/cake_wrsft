@@ -84,9 +84,29 @@ class ProductsController extends AppController {
 	}
 
 
-    public function download($versionDownloadId){
+    public function download($versionDownloadId = null){
         if(! isset($versionDownloadId) || empty($versionDownloadId)){
-            throw new NotFoundException("File could not be found");
+            //todo: pull current authenticated user download history and return
+
+            if (!$this->Auth->user())
+            {
+                throw new NotFoundException("File could not be found");
+            }
+
+            $option = array(
+                'recursive' => 1,
+                'conditions' => array(
+                    'Download.user_id' => $this->Auth->user('id')
+                ),
+                'limit' => 25
+            );
+
+            $this->Paginator->settings = $option;
+            $this->loadModel('Download');
+            $results  = $this->Paginator->paginate('Download');
+            $this->set('downloads', $results);
+
+            return;
         }
 
         $id = pack("H*", $versionDownloadId);
@@ -263,6 +283,7 @@ class ProductsController extends AppController {
 
         if ($this->request->is('post')) {
             $this->loadModel("Version");
+            $this->validateVersionAvailable();
             $this->Version->create($this->request->data);
             $this->Version->set("product_id", $id);
 
@@ -303,18 +324,20 @@ class ProductsController extends AppController {
         if ($this->request->is('post')) {
             $this->Version->id = $id;
 
+            $this->validateVersionAvailable();
+
+
             if (
-                $this->Version->save(
-                    $this->request->data,
-                    true,
-                    array("product_description_type", "description", "name", "available", "price"))
-                )
-            {
-                $this->Session->setFlash(__('The product version: '. $this->request->data['Version']['name'] .' has been saved.'));
-                return $this->redirect(array('admin'=> true,'action' => 'view', $this->request->data['Version']['product_id']));
+            $this->Version->save(
+                $this->request->data,
+                true,
+                array("product_description_type", "description", "name", "available", "price"))
+            ) {
+                $this->Session->setFlash(__('The product version: ' . $this->request->data['Version']['name'] . ' has been saved.'));
+                return $this->redirect(array('admin' => true, 'action' => 'view', $this->request->data['Version']['product_id']));
             } else {
                 $errors = $this->Product->validationErrors;
-                $this->Session->setFlash(__('The product version could not be saved. Please, try again.<br /> '. $this->convert_validationErrors_toString($errors)));
+                $this->Session->setFlash(__('The product version could not be saved. Please, try again.<br /> ' . $this->convert_validationErrors_toString($errors)));
             }
         }
 
@@ -428,5 +451,17 @@ class ProductsController extends AppController {
         parent::beforeFilter();
 
         $this->Auth->allow(array("index", "view"));
+    }
+
+    private function validateVersionAvailable()
+    {
+        if (
+            isset($this->request->data['Version']['available']) &&
+            !empty($this->request->data['Version']['available'])
+        ) {
+            $this->request->data['Version']['available'] = intval($this->request->data['Version']['available']);
+        } else {
+            $this->request->data['Version']['available'] = false;
+        }
     }
 }

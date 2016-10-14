@@ -16,6 +16,7 @@ class UsersController extends AppController {
 //todo: app\View\Errors\pdo_error.ctp
 //todo: app\View\Errors\missing_view.ctp
 //todo: pagination inside admin_index.ctp
+//todo: audit trails in v3. so when managers edits a user, trails are kept.
 
     public function admin_index(){
 
@@ -273,6 +274,7 @@ class UsersController extends AppController {
 
             $this->User->create($this->request->data);
             $this->User->set("confirmationhash",$this->_generateHash());
+            $this->User->data['Role'] = array($this->RetrieveRole('patron'));
 
             if ($this->User->validates())
             {
@@ -281,8 +283,6 @@ class UsersController extends AppController {
                     return;
                 }
 
-                //todo: add role of regular account to user.
-                //$this->User->Role
                 $href = Router::url(
                     array(
                         "controller" => "users",
@@ -290,12 +290,14 @@ class UsersController extends AppController {
                         $this->User->field("confirmationhash")),
                     true);
 
+                $userEmail = $this->request->data['User']['email'];
+
                 unset($this->request->data);
 
 
                 //todo: validate sending of email
-                // $this->SendPasswordResetEmail($this->request->data["email"], $href);
-                $this->Session->setFlash('<a href="'. $href .'"> '. $href .' </a>');
+                $this->SendPasswordResetEmail($userEmail, $href);
+                $this->Session->setFlash('<a href="'. $href .'">  </a>'); //$href
 
                 $this->set("message", "An email has been sent to you. click on the link to active your account.");
                 $this->render('/Messages/thanks');
@@ -303,11 +305,41 @@ class UsersController extends AppController {
         }
     }
 
+    private function RetrieveRole($roleName){
+        $this->loadModel('Role');
+        $unformattedRoles = $this->Role->find('all');
+        $_rolesCache = array();
+
+        foreach($unformattedRoles as $unformattedRole){
+            array_push($_rolesCache, $unformattedRole['Role']);
+        }
+
+        if(!isset($roleName) || empty($roleName))
+            return null;
+        $roleName = strtolower(trim($roleName));
+        foreach($_rolesCache as $role){
+            $lower = strtolower(trim($role['name']));
+            if (strcmp($roleName, $lower) == 0){
+                return $role['id'];
+            }
+        }
+        return null;
+    }
+
+    public  function create_default_accounts(){
+        $url = Router::url(array(
+            'controller' => 'bootstrap',
+            'action' => 'initapp'
+        ),true);
+
+        $this->redirect($url);
+    }
+
     public function confirm_account($confirmationHash)
     {
         $message = 'Account not found. can not be confirmed!';
 
-        $this->User->recursive = 0;
+        $this->User->recursive = 1;
         $foundUser = $this->User->findByConfirmationhash($confirmationHash);
 
         if (isset($foundUser) && !empty($foundUser))
@@ -316,7 +348,13 @@ class UsersController extends AppController {
             $dateTIme = new DateTime('now', new DateTimeZone('UTC'));
             $this->User->saveField("confirmed", $dateTIme->format("Y-m-d H:i:s"));
             $message = "Your account has been activated";
-            //TODO: log user in automatically
+
+
+            //logs in User atmic
+            $userToken = array_merge($foundUser[$this->User->alias], $foundUser[$this->Role->alias]);
+            unset($this->request->data);
+            unset($foundUser);
+            $this->Auth->login($userToken);
         }
 
         $this->set(
@@ -332,17 +370,27 @@ class UsersController extends AppController {
             $email == null
         )
         {
-            throw new InvalidArgumentException();
+            throw new InvalidArgumentException('Invalid');
         }
 
-        $this->Email->reset();
-        $this->Email->to = $email;
+        App::uses('CakeEmail', 'Network/Email');
+
+        $Email = new CakeEmail();
+        $Email->template('passwordReset', 'email')//view, layout
+            ->emailFormat('html')
+            ->from(array('services@worosoft.com' => 'WoroSoft'))
+            ->to($email)
+            ->subject("Password reset request")
+            ->viewVars(array('content' => $href))
+            ->send();
+
+        /*$this->Email->to = $email;
         $this->Email->from = "services@worosoft.com";
         $this->Email->subject = "Password reset request";
 
         $this->Email->sendAs = "html";
 
-        $this->Email->send($href,"passwordReset", "email");
+        $this->Email->send($href,"passwordReset", "email");*/
     }
 
     private function doesUserExist($user)
@@ -359,7 +407,13 @@ class UsersController extends AppController {
     public function beforeFilter() {
         parent::beforeFilter();
         // Allow users to register and logout.
-        $this->Auth->allow('forgotPassword', 'logout', 'resetPassword', 'confirm_account', 'register');
+        $this->Auth->allow(
+            'forgotPassword',
+            'logout',
+            'resetPassword',
+            'confirm_account',
+            'register',
+            'create_default_accounts');
     }
 
     public function logout() {

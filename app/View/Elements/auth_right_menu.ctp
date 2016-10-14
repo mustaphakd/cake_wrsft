@@ -12,7 +12,7 @@
     <li class="dropdown">
         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><?php echo AuthComponent::user()['username']; ?> <span class="caret"></span></a>
         <ul class="dropdown-menu">
-            <li><a href="<?php echo $this->Html->url(array("controller" => "licences", "action" => "")); ?>"> Licences</a></li>
+            <li><a href="<?php echo $this->Html->url(array("controller" => "licenses", "action" => "")); ?>"> Licences</a></li>
             <li><a href="<?php echo $this->Html->url(array("controller" => "products", "action" => "download")); ?>"> Downloads</a></li>
             <li><a href="<?php echo $this->Html->url(array("controller" => "payments", "action" => "history")); ?>"> Transaction History</a></li>
             <li role="separator" class="divider"></li>

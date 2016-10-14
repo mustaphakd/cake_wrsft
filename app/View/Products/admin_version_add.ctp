@@ -105,6 +105,9 @@
         'row' => "50",
         'cols' => "230",
         'rows' => "6",
+        'data-toggle' => "tooltip",
+        'data-placement' => "top",
+        'title' => 'fees: $25/per month; number of users : 50 users; mobile support: yes; automatic updates : yes; free tickets : 3',
         //'style' => "margin: 0px; width: 603px; height: 259px;",
         "aria-describedby" => "versionprdctdescriptiontype_spn",
         "required" => true
@@ -122,7 +125,9 @@
         "div" => "row",
         "before" => '<ul class="payment-sendbtns list-unstyled"><li><input style="margin-right: .02em;" type="reset" value="Reset"></li>'.'<li>',
         "after" => '</li></ul><div class="clearfix"> </div>'
-    ))
-
+    ));
+$this->Html->scriptBlock(
+    ' $(function () { $(\'[data-toggle="tooltip"]\').tooltip()})',
+    array("inline" => false));
     ?>
 </div>

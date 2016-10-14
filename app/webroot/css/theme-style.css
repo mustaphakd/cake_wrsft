@@ -1734,3 +1734,15 @@ img.mfp-img {
     padding-left: 5px;
     overflow: hidden;
 }
+
+span.spn-currency{
+    position: absolute;
+    top: 20%;
+    font-size: x-large;
+}
+
+.large-input {
+    height: 50px;
+    font-size: 50px;
+    width: 50%;
+}

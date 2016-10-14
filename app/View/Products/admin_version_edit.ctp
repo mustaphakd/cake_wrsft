@@ -90,7 +90,7 @@
             array(
                 'class' => "css-checkbox1",
                 'style' => "float: left",
-                "value" => "active",
+                /*"value" => "active",*/
                 "checked" => $version['available'] == true ? true : false ,
                 "hiddenField" => " "
             ));

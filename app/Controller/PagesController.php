@@ -89,7 +89,8 @@ class PagesController extends AppController {
             if ($this->LoginViewModel->validates())
             {
                 $this->loadModel("User");
-                $this->User->recursive = 0;
+                $this->loadModel("Role");
+                $this->User->recursive = 1;
                 $this->User->set(array('password' => $this->LoginViewModel->data['LoginViewModel']['password']));
                 $foundUser = $this->User->find(
                     "first",
@@ -105,12 +106,15 @@ class PagesController extends AppController {
                     ));
                     return;
                 }
-                //todo: load roles
+
+                unset($foundUser[$this->User->alias]["password"]);
+                $userToken = array_merge($foundUser[$this->User->alias], $foundUser[$this->Role->alias]);
+
 
                 unset($this->request->data);
-                unset($foundUser[$this->User->alias]["password"]);
-                //TODO: encrypt password
-                $this->Auth->login($foundUser[$this->User->alias]);
+                unset($foundUser);
+
+                $this->Auth->login($userToken);
                 $paths = explode("/", $this->referer());
                 $endToken = end($paths);
                 $this->redirect(strcmp($endToken, "login") == 0 ? $this->Auth->redirectUrl() :$this->referer());
@@ -144,18 +148,6 @@ class PagesController extends AppController {
 
             $prefix = $this->request->params['prefix'];
             unset($this->request->params['prefix']);
-
-          /*  $redirectParams = array(
-                "plugin" => $this->request->params['plugin'],
-                'controller' => $this->request->params['controller'],
-                'action' => preg_replace('/'. $prefix .'_/','', $this->request->params['action'] ),
-                'named' => $this->request->params['named'],
-                'pass' => $this->request->params['pass'],
-                'prefix' => null,
-                $prefix = false
-            );
-            unset($this->request);*/
-            //$this->redirect($redirectParams);
 
             $this->request->params['action'] = preg_replace('/'. $prefix .'_/','', $this->request->params['action'] );
             $this->view = preg_replace('/'. $prefix .'_/','', $this->view );
