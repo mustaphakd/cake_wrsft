@@ -1,6 +1,6 @@
-# CakePHP
+# WrsftCake
 
-[![Latest Unstable Version](https://poser.pugx.org/phpunit/phpunit/v/unstable)](//packagist.org/packages/phpunit/phpunit)
+[![Latest Unstable Version](https://poser.pugx.org/phpunit/phpunit/v/unstable)](//wosft)
 
 Interesting cake implementation
 
