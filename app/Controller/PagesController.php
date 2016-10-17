@@ -88,6 +88,22 @@ class PagesController extends AppController {
 
             if ($this->LoginViewModel->validates())
             {
+                $reCaptcha = $this->Components->load('ReCaptcha');
+                $reCaptcha->initialize($this);
+
+                $validation = $reCaptcha->VerifyUserResponse(
+                    Configure::read('reCaptcha.privateKey'),
+                    $this->request->data['g-recaptcha-response'],
+                    $this->request->clientIp()
+                    );
+
+                if(!$validation['success']){
+                    $this->Session->setFlash(__($validation['error-codes']), "default", array(
+                        "class" => "alert alert-danger"
+                    ));
+                    return;
+                }
+
                 $this->loadModel("User");
                 $this->loadModel("Role");
                 $this->User->recursive = 1;
@@ -140,6 +156,8 @@ class PagesController extends AppController {
 
         }
 
+
+
         if ($this->Auth->user() !== null)
         {
             $this->redirect(array(
@@ -151,6 +169,8 @@ class PagesController extends AppController {
 
         unset($this->LoginViewModel);
         unset($this->request->data);
+
+
         $this->render();
     }
 

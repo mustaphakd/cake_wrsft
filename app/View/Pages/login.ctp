@@ -6,9 +6,12 @@
  * Time: 4:08 PM
  */
 
-$this->assign('title', 'Authenticate')
-?>
+$this->assign('title', 'Authenticate');
 
+$recaptchaHelper = $this->Helpers->load('ReCaptcha', array('publicKey' => Configure::read('reCaptcha.publicKey')));
+ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
+
+?>
 <div class="payment-online-form-left">
 <?php
     echo $this->Form->create(null, array("controller" => "pages", "action" => "login", "url" => array("controller" => "pages")));
@@ -58,14 +61,20 @@ $this->assign('title', 'Authenticate')
 
     echo '</div></div>';
 
+    echo '<div id="recaptcha"></div>';
+
     echo '<fieldset>';
 
     echo $this->Form->end(array(
         "label" => "Login",
+        "id" => "btn_login",
         "div" => "row",
         "before" => '<ul class="payment-sendbtns list-unstyled"><li><input style="margin-right: .02em;" type="reset" value="Reset"></li>'.'<li>',
         "after" => '</li></ul><div class="clearfix"> </div>'
-    ))
+    ));
+
+
 
 ?>
 </div>
+<?php $this->ReCaptcha->makeCallAfterFormEnd(); ?>

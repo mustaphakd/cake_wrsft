@@ -1,6 +1,9 @@
 <?php
  //$this->layout = "entrance";
 
+
+$recaptchaHelper = $this->Helpers->load('ReCaptcha', array('publicKey' => Configure::read('reCaptcha.publicKey')));
+$this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
 ?>
 
 <!-- start-container---->
@@ -125,6 +128,8 @@
                 <!--<input class="btn btn-danger btn-lg" type="submit" Value="send" />-->
             </div>
 
+            <div id="recaptcha"></div>
+
             <?php
 
             if (AuthComponent::user() !== null)
@@ -139,4 +144,5 @@
         </div>
     </div>
 </div>
+<?php $this->ReCaptcha->makeCallAfterFormEnd(); ?>
 <!----//End-contact---->

@@ -70,6 +70,23 @@ class MessagesController extends AppController {
 
 			if ($this->Message->validates()) {
 
+                $reCaptcha = $this->Components->load('ReCaptcha');
+                $reCaptcha->initialize($this);
+
+                $validation = $reCaptcha->VerifyUserResponse(
+                    Configure::read('reCaptcha.privateKey'),
+                    $this->request->data['g-recaptcha-response'],
+                    $this->request->clientIp()
+                );
+
+                if(!$validation['success']){
+                    $this->Session->setFlash(__($validation['error-codes']), "default", array(
+                        "class" => "alert alert-danger"
+                    ));
+
+                    $this->redirect($this->referer());
+                }
+
                 if ( $this->Message->save(null, true, array("title", "viewed", "body", "date_sent", "email","confirmation", "user_id")))
                 {
                     unset($this->request->data);
