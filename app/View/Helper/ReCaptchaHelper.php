@@ -26,24 +26,6 @@ class ReCaptchaHelper extends AppHelper {
         //$this->_view = $view;
     }
 
-   /* public function generateScriptTagOnloadCallback($element_id){
-    //$this $this->View->Html->scriptBlock($script, array("inline"))
-    return '
-        <script type="text/javascript">
-        var onloadCallback = function(){
-        grecaptcha.render(\''. $element_id .'\', {
-        sitekey: "' . $this->_publicKey . '"});
-        };
-        </script>
-        ';
-}
-
-    public  function makeCallAfterFormEnd(){
-        //$this->HTML->script
-        return '<script src="https://www.google.com/recaptcha/api.js?onload=onloadCallback&render=explicit"
-        async defer></script>';
-    }*/
-
     public function generateScriptTagOnloadCallback($element_id){
        echo $this->_View->Html->scriptBlock('
         var onloadCallback = function(){
