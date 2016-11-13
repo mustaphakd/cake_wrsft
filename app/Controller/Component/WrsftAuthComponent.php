@@ -33,6 +33,7 @@ class WrsftAuthComponent extends Component {
 
             $tempRoles = $user['Role'];
 
+            if (isset($tempRoles))
             foreach($tempRoles as $role){
                 array_push($this->_roles, $role['name']);
             }
