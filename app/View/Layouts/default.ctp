@@ -64,6 +64,8 @@
         isset($this->footerOptions)?
             $this->footerOptions :
             array("footerAlignment" => "none"));
+
+    echo $this->fetch('scriptBottom');
 ?>
 </body>
 </html>

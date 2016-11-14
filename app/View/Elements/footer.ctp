@@ -8,12 +8,9 @@
 
 ?>
 <!----start-footer--->
-<div class="footer
-<?php
-    if (isset($footerAlignment) && $footerAlignment == "fixed") {
-        echo "navbar-fixed-bottom";
-    }
-?>   ">
+
+
+<div class="footer <?php if (isset($footerAlignment) && $footerAlignment == "fixed") { echo "navbar-fixed-bottom";}?> ">
     <div class="container">
         <div class="row">
             <div class="col-md-6 footer-left">

@@ -150,7 +150,7 @@
         echo '</div>'; //end text area wrappers
 
         echo '<div class=" col-lg-offset-3 col-md-6">';
-        echo '<a class="btn btn-block btn-primary" data-pathTarget="#VersionPath" data-path="' . $version['path']  .'" data-manageMedia="launch" href="#"> Upload installer</a>'; //$version['path']
+        echo '<a class="btn btn-block btn-primary" data-ds="'. DS .'" data-pathTarget="#VersionPath" data-path="' . $version['path']  .'" data-manageMedia="launch" href="#"> Upload installer</a>'; //$version['path']
         echo '</div>';
 
         echo '</div>'; // end row
@@ -164,8 +164,21 @@
                 .'<li>',
             "after" => '</li></ul><div class="clearfix"> </div>'
         ));
+    endif;
 
-    endif
+   // $this->Html->scriptStart(array("safe" => true));
 
+    echo $this->Html->scriptBlock("
+         +function($){
+                $(document).on('click.' + 'wrsft.mediaview.data-api', '[data-manageMedia=launch]', function(e){
+                    var source = $(e.target)
+                    source.is('a') && e.preventDefault()
+                    source.mediaview('show')
+                })
+            }(jQuery);",
+        array("inline" => true));
+   // $this->Html->scriptEnd();
+
+    $this->Html->script('mediaview.js', array('block' => 'scriptBottom'));
     ?>
 </div>

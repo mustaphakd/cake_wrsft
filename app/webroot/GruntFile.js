@@ -2,14 +2,22 @@
  * Created by musta on 11/13/2016.
  */
 
-Export.Module = function(grunt){
+module.exports = function(grunt){
 
-    grunt.init({
+    grunt.initConfig({
 
+        uglify: {
+            mediaview: {
+                files: {
+                    'js/mediaview.min.js': ['js/mediaview.js']
+                }
+            }
+        }
     });
 
-    grunt.loadNpmTasks("");
+    grunt.loadNpmTasks('grunt-contrib-uglify');
 
 
+    grunt.registerTask();
 
 };
