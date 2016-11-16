@@ -49,7 +49,9 @@ class ArticlesController extends  AppController
     public  function admin_index(){
         $options = array(
             'recursive' => 1,
-            "order" => array("Article.created" => "desc")
+            'fields' => array("Article.id", "Article.title", "Article.enabled", "Article.modified", "User.name"),
+            "order" => array("Article.created" => "desc"),
+            'limit' => 5
         );
 
         $articles = array();
@@ -62,11 +64,11 @@ class ArticlesController extends  AppController
 
                 $article = array(
                     'id' => bin2hex($item["Article"]['id']),
-                    'content' => $item["Article"]['content'],
+                   // 'content' => $item["Article"]['content'],
                     'enabled' => $item["Article"]['enabled'],
                     'title' => $item["Article"]['title'],
-                    'created' => $item["Article"]['created'],
-                    'image_path' => $item["Article"]['image_path']
+                    'modified' => $item["Article"]['modified'],
+                    //'image_path' => $item["Article"]['image_path']
                 );
 
                 if (isset($item["Article"]['User'])){
@@ -88,7 +90,7 @@ class ArticlesController extends  AppController
         if ($this->request->is("post")){
             $this->Article->create($this->request->data);
 
-            if($this->Article->validates()){
+            /*if($this->Article->validates()){
                 if ($this->Article->save(null, true)) {
                     $this->Session->setFlash(__('The Article: ' . $this->request->data['Article']['title'] . ' has been saved.'));
                     return $this->redirect(array('action' => 'admin_detail', bin2hex($this->Article->id)));
@@ -101,15 +103,15 @@ class ArticlesController extends  AppController
             {
                 $errors = $this->Article->validationErrors;
                 $this->Session->setFlash(__('The Article could not be saved. Please, try again.<br /> ' . $this->convert_validationErrors_toString($errors)));
-            }
+            }*/
             return;
         }
 
         $this->request->data = array(
-            "title" => " ",
-            "content" => " ",
-            "image_path" => " ",
-            "enabled" => " "
+            "Article.title" => " ",
+            "Article.content" => " ",
+            "Article.image_path" => " ",
+            "Article.enabled" => " "
         );
     }
 
@@ -120,7 +122,7 @@ class ArticlesController extends  AppController
             throw  new UnexpectedValueException("Article not found");
         }
 
-        $foundArticle = FindArticle($id);
+        $foundArticle = $this->FindArticle($id);
         $this->request->data = $foundArticle;
     }
 
@@ -145,7 +147,7 @@ class ArticlesController extends  AppController
             return;
         }
 
-        $foundArticle = FindArticle($id);
+        $foundArticle = $this->FindArticle($id);
         $this->request->data = $foundArticle;
     }
 

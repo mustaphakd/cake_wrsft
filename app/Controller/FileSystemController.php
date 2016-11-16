@@ -11,6 +11,7 @@ App::uses('Folder', 'Utility');
 App::uses('File', 'Utility');
 
 define( 'WWW_FILE_ROOT', WWW_ROOT . 'files' . DS);
+define( 'WWW_IMG_ROOT', WWW_ROOT . 'img' . DS);
 
 /**
  * FileSystem Controller
@@ -277,9 +278,22 @@ class FileSystemController extends AppController{
         ));
     }
 
+    public function default_image(){
+
+        $fullPath = WWW_IMG_ROOT.  "woroIcon.png";
+
+        if (!file_exists($fullPath)){
+            $this->setErrorMessage("the following path: " . $fullPath . " does not exist");
+            return;
+        }
+
+        $this->response->file($fullPath, array('download' => true, 'name' => 'woroArch'));
+        return $this->response;
+    }
+
     public function beforeFilter(){
         parent::beforeFilter();
 
-        //$this->Auth->allow();
+        $this->Auth->allow("default_image");
     }
 }
