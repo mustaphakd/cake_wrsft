@@ -16,11 +16,7 @@
     var mediaviewNamespace = namespace + '.mediaview'
 
     var MediaView = function(element, options){
-        // variables naming conventions:
-        // variables that reference dom element should start with $ character
-        //  ex: this.$varName
-        // all other variable should not have that character
-
+        
         //root element of component
         this.$element = $(element);
         this.folders = null
@@ -29,18 +25,30 @@
         this.options = options
         this.$modal = null
 
+        this.init()
     }
 
     MediaView.DEFAULTS = {
         state: 'select', // can be select or save
         path: '',
+        configEndpoints: null,
+        onSetSelectedFilePath: null,
         origin: window.location.origin +
         ((window.location.hostname.toLowerCase() == 'localhost' ||
         window.location.hostname.toLowerCase() == '127.0.0.1') ? '/demos/worosoft/' : '')
     }
 
-    // define functions on the type prototype
-    //ex: MediaView.prototype.funcName = function(){}
+    MediaView.prototype.init = function(){
+        if( this.options.configEndpoints !== null){
+            return this.options.configEndpoints();
+        }
+
+        this.options.uploadEndpoint = this.options.origin + 'FileSystem/uploadFile'
+        this.options.setSelectedFilePathEndpoint = this.options.origin + 'FileSystem/setVersionFilePath'
+        this.options.createDirectoryEndpoint = this.options.origin + 'FileSystem/createDirectory'
+        this.options.searchEndpoint = this.options.origin + 'FileSystem/directoryAndFiles'
+        this.options.deleteDirectoryEndpoint = this.options.origin + 'FileSystem/deleteDirectory'
+    }
 
     MediaView.prototype.show = function(initialPath){
 
@@ -62,8 +70,7 @@
         var folderPath =  this.getFolderPath() || this.RetrieveFolderPortion(this.options.path)
         this.getFoldersNdFiles(folderPath, function(){
             //debugger
-            var ds = $('input[type=hidden]#ProductHiddends')[0].value
-            var filePath = tmpPrx.options.path.replace(folderPath + ds, '')
+            var filePath = tmpPrx.options.path.replace(folderPath + tmpPrx.options.ds, '')
             tmpPrx.options.pathSelectedFile = filePath.trim()
             tmpPrx = null
         })
@@ -92,7 +99,7 @@
         //init the frame only once
         if(childCount > 0) return
 
-        var ds = $('input[type=hidden]#ProductHiddends')[0].value
+        var ds = this.options.ds
 
         rootContainer.append('<div class="modal-content">' +
             '<div class="modal-header"><span class="pull-left" style="text-transform: uppercase; margin-top: -8px">' +
@@ -234,7 +241,7 @@
             modalBody.off('mouseleave.' + mediaviewNamespace, '.filesys-wrapper')
 
             var folderPath = prx.getFolderPath()
-            var ds = $('input[type=hidden]#ProductHiddends')[0].value || '\\'
+            var ds = prx.options.ds
             folderPath = folderPath.trim()
 
             if (folderPath.charAt(0) == ds) folderPath = folderPath.substr(1, folderPath.length - 1)
@@ -360,7 +367,7 @@
         formData.append('idia', file)
         formData.append('currentPath', this.getFolderPath())
 
-        $.ajax(this.options.origin + 'FileSystem/uploadFile', {
+        $.ajax( this.options.uploadEndpoint, { 
             dataType: "json",
             crossDomain: true,
             method: 'POST',
@@ -410,7 +417,7 @@
         // if file, get folders path and append filename at the end, set data-pathTarget and return
         if (itemType == 'file'){
             var folderPath = this.getFolderPath()
-            var ds = $('input[type=hidden]#ProductHiddends')[0].value || '\\'
+            var ds = this.options.ds
             var filename = $(this.options.lastClicked).attr('title')
             folderPath.endsWith(ds) || (folderPath = folderPath + ds)
 
@@ -420,9 +427,17 @@
             formData.append('versionId', $('input[type=hidden]#reqid')[0].value)
             formData.append('file', this.options.pathSelectedFile)
 
+            if (this.options.onSetSelectedFilePath !== null){
+
+                // $(this.options.pathtarget)[0].value = this.options.pathSelectedFile //tobe decided from within callback
+                 this.$element.data('path', this.options.pathSelectedFile)
+                 this.options.onSetSelectedFilePath(this.options.pathSelectedFile);
+                 return;
+            }
+
             this.showLoader()
 
-            $.ajax(this.options.origin + 'FileSystem/setVersionFilePath', {
+            $.ajax(this.options.setSelectedFilePath, { //this.options.origin + 'FileSystem/setVersionFilePath'
                 dataType: "json",
                 crossDomain: true,
                 method: 'POST',
@@ -457,7 +472,7 @@
         }
 
         var folderPath = this.getFolderPath()
-        var ds = $('input[type=hidden]#ProductHiddends')[0].value || '\\'
+        var ds = this.options.ds
         var folderName = $(this.options.lastClicked).attr('title')
         folderPath.endsWith(ds) || (folderPath = folderPath + ds)
         folderPath = folderPath + folderName
@@ -469,7 +484,6 @@
         })
 
         return
-
     }
 
     MediaView.prototype.createNewDirectory = function(){
@@ -490,7 +504,7 @@
 
         opts = JSON.stringify(opts)
 
-        $.ajax(this.options.origin + 'FileSystem/createDirectory', {
+        $.ajax(this.options.createDirectoryEndpoint, { 
             dataType: "json",
             crossDomain: false,
             method: 'POST',
@@ -536,7 +550,7 @@
 
         opts = JSON.stringify(opts)
 
-        $.ajax(this.options.origin + 'FileSystem/deleteDirectory', {
+        $.ajax(this.options.deleteDirectoryEndpoint, {
             dataType: "json",
             crossDomain: false,
             method: 'POST',
@@ -585,7 +599,7 @@
 
     MediaView.prototype.setFolderPath = function(newPath){
 
-        var ds = $('input[type=hidden]#ProductHiddends')[0].value
+        var ds = this.options.ds
 
         if (newPath.charAt(0) == ds ) {(newPath = newPath.substr(1, newPath.length -1))}
 
@@ -601,8 +615,8 @@
 
         if ((path == undefined) || (path == null) || (path.length == undefined) || (path.length == 0)) return
 
-        var ds = $('input[type=hidden]#ProductHiddends')[0].value
-        var pathTokens = path.split(ds || '\\')
+        var ds = this.options.ds
+        var pathTokens = path.split(ds)
 
         if(pathTokens[pathTokens.length -1].split('.').length == 2){
             return pathTokens.splice(0, (pathTokens.length -1)).join(ds)
@@ -614,7 +628,7 @@
 
     MediaView.prototype.getFoldersNdFiles = function(paramPath, callback){
 
-        var ds = $('input[type=hidden]#ProductHiddends')[0].value || '\\'
+        var ds = this.options.ds
         var path = paramPath || $.trim(this.options.path)
 
         if (path.length == 0){
@@ -650,7 +664,7 @@
             }
         }
 
-        $.ajax(this.options.origin + 'FileSystem/directoryAndFiles', {
+        $.ajax( this.options.searchEndpoint, { 
             dataType: "json",
             crossDomain: true,
             method: 'GET',
@@ -710,6 +724,10 @@
     }
 
     $.fn.mediaview.Constructor = MediaView
+    $.fn.mediaview.defaults = MediaView.DEFAULTS
+    $.fn.mediaview.manageMediaView = manageMediaView
+    $.fn.mediaview.namespace = namespace
+    $.fn.mediaview.mediaviewNamespace = mediaviewNamespace
 
     // MediaView NO-CONFLICT
     // =================== common boiler plate code
