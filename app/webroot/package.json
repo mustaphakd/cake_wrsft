@@ -16,6 +16,11 @@
   "devDependencies": {
     "bower": "^1.8.0",
     "grunt": "^1.0.1",
-    "grunt-contrib-uglify": "^2.0.0"
+    "grunt-contrib-uglify": "^2.0.0",
+    "typescript": "^2.2.0-dev.20161118"
+  },
+  "dependencies": {
+    "@types/bootstrap": "^3.3.32",
+    "@types/jquery": "^2.0.34"
   }
 }

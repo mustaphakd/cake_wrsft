@@ -1,10 +1,25 @@
 {
+  "compileOnSave": true,
   "compilerOptions": {
-    "module": "commonjs",
+    "module": "system",
+    "noImplicitAny": false,
+    "removeComments": true,
+    "preserveConstEnums": true,
+    "sourceMap": true,
+    "outDir": "js/",
+    "declaration": true,
+    "declarationDir": "typings/",
+    "diagnostics": false,
     "target": "es5",
-    "sourceMap": true
+    "typeRoots": [
+      "C:/xampp/htdocs/demos/worosoft/app/webroot/typings", "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\node_modules\\@types"
+    ]
   },
+  "include": [
+    "src/**/*"
+  ],
   "exclude": [
-    "node_modules"
+    "node_modules",
+    "**/*.spec.ts"
   ]
 }
