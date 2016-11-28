@@ -1,8 +1,9 @@
 {
   "compileOnSave": true,
   "compilerOptions": {
-    "module": "system",
-    "noImplicitAny": false,
+    "module": "commonjs",
+    "noImplicitAny": true,
+    "moduleResolution": "node",
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
@@ -11,12 +12,15 @@
     "declarationDir": "typings/",
     "diagnostics": false,
     "target": "es5",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "suppressImplicitAnyIndexErrors": true,
     "typeRoots": [
       "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\typings", "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\node_modules\\@types"
     ]
   },
   "include": [
-    "src/**/*"
+    "src/articles/*"
   ],
   "exclude": [
     "node_modules",

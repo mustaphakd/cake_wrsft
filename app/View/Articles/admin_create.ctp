@@ -30,23 +30,6 @@
     echo '</div>';
     echo '</div>';
 
-
-/* echo '<div class=" col-lg-offset-2 col-lg-4 btn-group" data-toggle="buttons">';
-    echo '<label class = "btn btn-primary active" >';
-
-    $enabledOptions = array(
-        "type" => "input",
-        "class" => 'form-control text-box-dark',
-        "autocomplete" => "off",
-        'div' => false,
-        'label' => false,
-        'error' => false,
-    );
-
-    echo $this->Form->input("Article.enabled", $enabledOptions);
-    echo '</label>';
-    echo '</div>';*/
-
     $active =
         (isset($this->request->data['Article']) &&
         isset($this->request->data['Article']['enabled']) &&
@@ -63,28 +46,63 @@
 
     <?php
 
-
-/********************************************************/
-
     echo '<br />';
     echo '<br />';
 
     echo '<div class="col-lg-12">';
 
-    $setNotNull = isset($this->request->data['Article']) && isset($this->request->data['Article']['image_path']) && !empty($this->request->data['Article']['image_path']);
-    $imagepath = $setNotNull ? $this->request->data['Article']['image_path'] :     Router::url(array(
+
+    $retrievalEndpoint = Router::url(array(
         'controller' => 'filesystem',
-        'action' => "default_image",
+        'action' => "image",
         "admin" => false
     ), true);
 
+    $articleImagePathSetNotNull = isset($this->request->data['Article']) && isset($this->request->data['Article']['image_path']) && !empty(trim($this->request->data['Article']['image_path']));
+
+    if (! $articleImagePathSetNotNull)
+    {
+
+        $hiddenPath = " ";
+        $imagepath = Router::url(array(
+            'controller' => 'filesystem',
+            'action' => "default_image",
+            "admin" => false
+        ), true);
+    }
+    else{
+        $hiddenPath = $this->request->data['Article']['image_path'];
+        $imagepath = $retrievalEndpoint . $hiddenPath ;
+    }
+
+    $uploadEndpoint =  Router::url(array(
+        'controller' => 'filesystem',
+        'action' => "uploadFile",
+        "admin" => false
+    ), true);
+
+    $searchEndpoint =  Router::url(array(
+        'controller' => 'filesystem',
+        'action' => "directoryAndFiles",
+        "admin" => false
+    ), true);
+
+
     echo '<div class="col-lg-3" style="margin-top: 15px;">';
-    echo '<input type="hidden" name="data[Article][image_path]" id="ArticleImage_Path_" value="' . $imagepath .'">';
+    echo '<input type="hidden" name="data[Article][image_path]" id="ArticleImage_Path_" value="' . $hiddenPath .' ">';
     echo $this->Html->image($imagepath,
         array(
             'name' => "data[Article][image_path]",
             'alt' => 'image',
-            'class' => "img-thumbnail imagemod",
+            'class' => "img-thumbnail image-mods",
+            'id' => "ArticleImage_path",
+            'data-imageSourceId' => "#ArticleImage_path",
+            'data-uploadEndpoint' => $uploadEndpoint,
+            'data-searchEndpoint' =>  $searchEndpoint,
+            'data-retrievalendpoint' => $retrievalEndpoint,
+            'data-ds' => DS,
+            'data-origin' => $this->request->base,
+            'data-hiddenSourceId' => "#ArticleImage_Path_",
             'style' => 'width:255px; height:297px'));
     echo '</div>';
 
@@ -117,7 +135,19 @@
         "div" => "row",
         "before" => '<ul class="payment-sendbtns list-unstyled"><li><input style="margin-right: .02em;" type="reset" value="Reset"></li>'.'<li>',
         "after" => '</li></ul><div class="clearfix"> </div>'
-    ))
+    ));
 
+    echo $this->Html->scriptBlock(
+        '+function($){ $(document).ready(function(){
+            $(".image-mods").on($.fn.imageMod.data_namespace, function (evt) {
+                var trgt = $(evt.target);
+                if (trgt.is(\'img\')) {
+                    evt.preventDefault();
+                    trgt.imageMod(\'show\');
+                }
+            });
+        })}(jQuery);',
+        array("safe" => true, "defer" => true) );
+    $this->Html->script(array("mediaview.js","imagemod.js"), array("block" => "scriptBottom"));
     ?>
 </div>

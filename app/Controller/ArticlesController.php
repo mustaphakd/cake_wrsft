@@ -15,6 +15,7 @@ App::uses('AppController', 'Controller');
  * Articles Controller
  *
  * @property Article $Article
+ * @property User $User
  * @property PaginatorComponent $Paginator
  */
 
@@ -27,9 +28,18 @@ class ArticlesController extends  AppController
      * @var array
      */
     public $components = array('Paginator');
+    public $uses = array("Article", "User");
 
     public function latest(){
 
+        /**
+        for ajx request:
+        x-requested-with: XMLHttpRequest
+         */
+
+        if($this->request->is('ajax')){
+            $this->viewClass = "Json";
+        }
         $options = array(
             'recursive' => 0,
             "fields" => array("title", "content", "image_path" ),
@@ -41,7 +51,7 @@ class ArticlesController extends  AppController
 
         $this->set(array(
             'status' => 'ok',
-            "article" => $foundArticle,
+            "article" => $foundArticle[$this->Article->alias],
             "_serialize" => array("article","status")
         ));
     }
@@ -88,9 +98,14 @@ class ArticlesController extends  AppController
     public function admin_create(){
 
         if ($this->request->is("post")){
+            $this->trimParameters();
             $this->Article->create($this->request->data);
 
-            /*if($this->Article->validates()){
+            //todo: check to make sure image path is not absolute to some external site. and in future validate image bit correctness
+
+            if($this->Article->validates()){
+                $userId = $this->Auth->user()["id"];
+                $this->Article->set("user_id",$userId);
                 if ($this->Article->save(null, true)) {
                     $this->Session->setFlash(__('The Article: ' . $this->request->data['Article']['title'] . ' has been saved.'));
                     return $this->redirect(array('action' => 'admin_detail', bin2hex($this->Article->id)));
@@ -103,7 +118,7 @@ class ArticlesController extends  AppController
             {
                 $errors = $this->Article->validationErrors;
                 $this->Session->setFlash(__('The Article could not be saved. Please, try again.<br /> ' . $this->convert_validationErrors_toString($errors)));
-            }*/
+            }
             return;
         }
 
@@ -123,11 +138,20 @@ class ArticlesController extends  AppController
         }
 
         $foundArticle = $this->FindArticle($id);
-        $this->request->data = $foundArticle;
+        $this->set("article", $foundArticle[$this->Article->alias]);
+        $this->set("user", $foundArticle[$this->User->alias]);
+
+        if (isset($this->request->data['backlink_articleDetail'])){
+            $this->set("backlink", $this->request->data['backlink_articleDetail']);
+        }
+        else{
+            $this->request->data['backlink_articleDetail'] = $this->referer();
+            $this->set("backlink", $this->request->data['backlink_articleDetail']);
+        }
     }
 
     public function admin_edit($articleId){
-        $id = unpack("H*", $articleId);
+        $id = pack("H*", $articleId);
 
         if (! $this->Article->exists($id)){
             throw  new UnexpectedValueException("Article not found");
@@ -195,5 +219,12 @@ class ArticlesController extends  AppController
                 'support' => array('admin_index', 'admin_create', 'admin_detail')
             )
         );
+    }
+
+    private function trimParameters()
+    {
+        $this->request->data[$this->Article->alias]['image_path'] = trim($this->request->data[$this->Article->alias]['image_path']);
+        $this->request->data[$this->Article->alias]['title'] = trim($this->request->data[$this->Article->alias]['title']);
+        $this->request->data[$this->Article->alias]['content'] = trim($this->request->data[$this->Article->alias]['content']);
     }
 }

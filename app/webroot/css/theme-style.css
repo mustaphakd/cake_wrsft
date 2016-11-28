@@ -3,9 +3,9 @@ Author: W3layouts
 Author URL: http://w3layouts.com
 License: Creative Commons Attribution 3.0 Unported
 License URL: http://creativecommons.org/licenses/by/3.0/
---*/
+-- todo:// remove comments here to re-insert imports
 @import url(http://fonts.googleapis.com/css?family=Open+Sans:400,600,700,800,300);
-@import url(http://fonts.googleapis.com/css?family=Enriqueta:400,700);
+@import url(http://fonts.googleapis.com/css?family=Enriqueta:400,700);*/
 .logo,.header-right,.well{
 	background:none;
 	border:none;
@@ -20,7 +20,8 @@ body a{
 	-o-transition:0.5s all;
 }
 .bg{
-	background:url(../img/head-bg.png) no-repeat 0px 0px ;
+	/*background:url(../img/head-bg.png) no-repeat 0px 0px ;*/
+	background:url(../img/head_bg2.png) no-repeat 0px 0px ;
 }
 /*----start-header----*/
 .header{
@@ -65,11 +66,13 @@ body a{
 	font-family: 'Enriqueta', serif;
 }
 .slide-banner-left h1{
-	color: #FFF;
+	/*color: #FFF;*/
+	color: #0e0000;
 	font-size: 3.5em;
 }
 .slide-banner-left p{
-	color: #C5D2E5;
+	/*color: #C5D2E5;*/
+	color: #5b5f65;
 	font-size: 1.5em;
 	width: 64%;
 	margin: 2em 0 2.5em;
@@ -311,9 +314,10 @@ body a{
 	width:100%;
 	min-height:520px;
 }
-/*----start-contact----*/
+/*----start-contact---  style="
+    color: #2F3237;   -*/
 .contact{
-	background: #2D3035;
+	/*background: #2D3035;*/
 	font-family: 'Open Sans', sans-serif;
 	padding: 3.5em 0 7em;
 }
@@ -329,7 +333,7 @@ body a{
 	padding: 3em 0 4em;
 }
 .contact span{
-	color: #FFF;
+	color: #2F3237; /*#FFF;*/
 	display: block;
 	font-size: 1.7em;
 	margin-bottom: 0.2em;

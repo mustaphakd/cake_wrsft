@@ -291,6 +291,26 @@ class FileSystemController extends AppController{
         return $this->response;
     }
 
+    public function image($whatif){
+        $tokens = (isset($this->request->params) && is_array($this->request->params) ) ? $this->request->params['pass'] : null;
+
+        if($tokens == null)
+            return "error! no image found.";
+
+        ($tokens[0] == 'root') && ($tokens = array_slice($tokens, 1, null, true));
+
+        $path = implode(DS, $tokens);
+
+        $fullPath = WWW_FILE_ROOT.  $path;
+
+        if (!file_exists($fullPath)){
+            return "error! no image found.";
+        }
+
+        $this->response->file($fullPath, array('download' => true, 'name' => $tokens[count($tokens) - 1 ]));
+        return $this->response;
+    }
+
     public function beforeFilter(){
         parent::beforeFilter();
 

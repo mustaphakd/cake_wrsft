@@ -32,7 +32,7 @@
                 <?php
                     $bcgColor =  $article['enabled'] ? "green" : "red";
                 ?>
-                <td style="padding: 1px;"> <span style="width: 100%;height: 100%;background-color:<?php echo  $bcgColor ?> ">  </span>  </td>
+                <td style="padding: 1px;"> <div style="width: 80%;height: 20px;background-color:<?php echo  $bcgColor ?> ">  </div>  </td>
 
                 <td>
                     <a title="View detail" href="<?php echo $this->Html->url(array("controller" => "articles", "action" => "detail","admin" => true, $article['id'])); ?>"><span class="glyphicon glyphicon-floppy-open" style="color: rgb(66, 202, 139)"></span></a>
@@ -40,7 +40,6 @@
                     <a title="Edit article" href="<?php echo $this->Html->url(array("controller" => "articles", "action" => "edit","admin" => true, $article['id'])); ?>"><span class="glyphicon glyphicon-floppy-open" style="color: rgb(66, 202, 139)"></span></a>
                     <span class="glyphicon" style="color: rgb(66, 202, 139)">|</span>
                     <a title="Delete article" href="<?php echo $this->Html->url(array("controller" => "articles", "action" => "delete","admin" => true, $article['id'])); ?>"><span class="glyphicon glyphicon-remove" style="color: rgb(66, 202, 139)"></span></a>
-
                 </td>
 
             </tr>

@@ -4,6 +4,10 @@
 
 $recaptchaHelper = $this->Helpers->load('ReCaptcha', array('publicKey' => Configure::read('reCaptcha.publicKey')));
 $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
+
+$this->Html->script(
+    array("vendors/shim.min.js","vendors/reflect.js", "vendors/system.src.js", "vendors/zone.js", "articles/systemjs.config.js"),
+    array("block" => "script"));
 ?>
 
 <!-- start-container---->
@@ -14,7 +18,7 @@ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
             <div class="col-md-6">
                 <!--start-logo---->
                 <div class="well logo">
-                    <a href="#"><?php echo $this->Html->image("woroIcon.png", array(
+                    <a href="#"><?php echo $this->Html->image("woroIcon2.png", array(
                             "alt" => "Worosoft",
                             "title" => "Worosoft"
                         )); ?></a>
@@ -35,6 +39,10 @@ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
 <!--start-top-grids---->
 <div class="top-grids">
     <div class="container">
+
+        <my-art></my-art>
+
+        <?php /*
         <div class="top-grid-left col-md-3">
             <a href="#">
                 <?php echo $this->Html->image("cola_leaf.png",
@@ -50,12 +58,14 @@ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
             </p>
         </div>
         <div class="top-grid-right col-md-2">
-            <ul><!--
+            <ul>
                 <li><a href="#"><span class="icon1"> </span></a></li>
-                <li><a href="#"><span class="icon2"> </span></a></li>-->
+                <li><a href="#"><span class="icon2"> </span></a></li>
                 <div class="clearfix"> </div>
             </ul>
         </div>
+
+    */?>
     </div>
 </div>
 <!--//End-top-grids---->
@@ -144,5 +154,15 @@ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
         </div>
     </div>
 </div>
-<?php $this->ReCaptcha->makeCallAfterFormEnd(); ?>
+<?php $this->ReCaptcha->makeCallAfterFormEnd();
+
+echo $this->Html->scriptBlock(
+    '
+    autoBootstrap = true;
+            System.import("woromedia/js/articles/main").catch(function(err){ 
+                console.error(err)
+                });
+    ',
+    array("safe" => true, "defer" => true) );
+?>
 <!----//End-contact---->

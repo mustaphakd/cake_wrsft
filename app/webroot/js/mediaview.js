@@ -31,8 +31,11 @@
     MediaView.DEFAULTS = {
         state: 'select', // can be select or save
         path: '',
+        canManageDir: true,
+        canNavigateDir: true,
         configEndpoints: null,
         onSetSelectedFilePath: null,
+        root: "root",
         origin: window.location.origin +
         ((window.location.hostname.toLowerCase() == 'localhost' ||
         window.location.hostname.toLowerCase() == '127.0.0.1') ? '/demos/worosoft/' : '')
@@ -40,7 +43,7 @@
 
     MediaView.prototype.init = function(){
         if( this.options.configEndpoints !== null){
-            return this.options.configEndpoints();
+            return this.options.configEndpoints(this);
         }
 
         this.options.uploadEndpoint = this.options.origin + 'FileSystem/uploadFile'
@@ -101,19 +104,25 @@
 
         var ds = this.options.ds
 
-        rootContainer.append('<div class="modal-content">' +
-            '<div class="modal-header"><span class="pull-left" style="text-transform: uppercase; margin-top: -8px">' +
-            '<strong>Manage Media</strong></span>' +
-            '<span class="pull-left filesys-path">' +  ds + 'root' + (this.options.path.startsWith(ds) ? this.RetrieveFolderPortion(this.options.path) : (ds + this.RetrieveFolderPortion(this.options.path))) +'</span>' +
-            '<span class="close" data-dismiss="modal">close</span></div>' +
-            '<span class="filesys-wrapper pull-right filesys-newdir" style="top: 40px;right: 0px; position: absolute;" title="Create a new directory" >' +
+        var dirManager =  this.options.canManageDir ? 
+        '<span class="filesys-wrapper pull-right filesys-newdir" style="top: 40px;right: 0px; position: absolute;" title="Create a new directory" >' +
             '<span class="glyphicon glyphicon-plus" style="font-size: 25px; color:darkgray;"></span>' +
             '<span style="color: #000000">Create</span>' +
             '</span>'+
             '<a class="btn filesys-wrapper pull-right filesys-remdir" title="Delete directory" style="top: 100px;right: 0px;position: absolute;" >' +
             '<span class="glyphicon glyphicon-minus" style="font-size: 25px; color:darkgray;"></span>' +
             '<span style="color: #000000; display: block">Delete</span>' +
-            '</a>'+
+            '</a>'
+            : "";
+
+        rootContainer.append('<div class="modal-content">' +
+            '<div class="modal-header"><span class="pull-left" style="text-transform: uppercase; margin-top: -8px">' +
+            '<strong>Manage Media</strong></span>' +
+            '<span class="pull-left filesys-path">' +  ds + this.options.root + (this.options.path.startsWith(ds) ? this.RetrieveFolderPortion(this.options.path) : (ds + this.RetrieveFolderPortion(this.options.path))) +'</span>' +
+            '<span class="close" data-dismiss="modal">close</span></div>' +
+
+            dirManager +
+
             '<div class="modal-body" style="overflow-y: auto;max-height: 200px;min-height: 200px;">  </div>' +
             '<div class="modal-footer">' +
             '<div class="pull-left"><input type="file" /><a class="btn glyphicon glyphicon-upload" ></a></div><a class="btn btn-primary">Select</a>' +
@@ -252,7 +261,8 @@
             if (folderTokens.length > 1) {
                 folderTokens.splice(folderTokens.length - 1, 1)
                 var upPath = ds + folderTokens.join(ds)
-
+                
+                if(prx.options.canNavigateDir)
                 fileSys += '<span data-filesystype="updir" class="filesys-wrapper" title="' + upPath + '"><span class="glyphicon glyphicon-arrow-up" style="font-size: 25px; color: darkgray;"></span></span><br />'
             }
 
@@ -424,16 +434,18 @@
             this.options.pathSelectedFile = folderPath + filename
 
             var formData = new FormData()
-            formData.append('versionId', $('input[type=hidden]#reqid')[0].value)
+            
             formData.append('file', this.options.pathSelectedFile)
 
             if (this.options.onSetSelectedFilePath !== null){
 
                 // $(this.options.pathtarget)[0].value = this.options.pathSelectedFile //tobe decided from within callback
                  this.$element.data('path', this.options.pathSelectedFile)
-                 this.options.onSetSelectedFilePath(this.options.pathSelectedFile);
+                 this.options.onSetSelectedFilePath(this, this.options.pathSelectedFile);
                  return;
             }
+
+            formData.append('versionId', $('input[type=hidden]#reqid')[0].value)
 
             this.showLoader()
 
@@ -605,7 +617,7 @@
 
         var tokens = newPath.split(ds)
 
-        if (tokens[0] != 'root')tokens.unshift('root')
+        if (tokens[0] != this.options.root)tokens.unshift(this.options.root)
 
         newPath = ds + tokens.join(ds)
         this.$modal.find('.modal-content > .modal-header > .filesys-path').text(newPath)
@@ -613,7 +625,7 @@
 
     MediaView.prototype.RetrieveFolderPortion = function(path){
 
-        if ((path == undefined) || (path == null) || (path.length == undefined) || (path.length == 0)) return
+        if ((path == undefined) || (path == null) || (path.length == undefined) || (path.length == 0)) return "";
 
         var ds = this.options.ds
         var pathTokens = path.split(ds)
@@ -632,7 +644,7 @@
         var path = paramPath || $.trim(this.options.path)
 
         if (path.length == 0){
-            path = ds + 'root' + ds
+            path = ds + this.options.root + ds
         }
         else{
 
@@ -648,10 +660,10 @@
                 path = pathTokens.slice(pathTokens.length - 1).join(ds) + ds
 
             }else if(lstEntryLngth < 2){ //dir
-                if (!path.startsWith(ds + 'root')){
-                    if (!path.startsWith('root')){
+                if (!path.startsWith(ds + this.options.root)){
+                    if (!path.startsWith(this.options.root)){
 
-                        (path.startsWith(ds) && (path = ds + 'root' + path)) || (path = ds + 'root' + ds + path)
+                        (path.startsWith(ds) && (path = ds + this.options.root + path)) || (path = ds + this.options.root + ds + path)
 
                     }else
                     {
@@ -660,7 +672,7 @@
                 }
             }
             else{ //invalid
-                path = ds + 'root' + ds
+                path = ds + this.options.root + ds
             }
         }
 
@@ -728,6 +740,7 @@
     $.fn.mediaview.manageMediaView = manageMediaView
     $.fn.mediaview.namespace = namespace
     $.fn.mediaview.mediaviewNamespace = mediaviewNamespace
+    $.fn.mediaviewDataNamespace = 'wrsft.mediaview';
 
     // MediaView NO-CONFLICT
     // =================== common boiler plate code

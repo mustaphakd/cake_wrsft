@@ -23,7 +23,7 @@
     ));
     echo $this->fetch('css');
 
-    echo $this->Html->script(array("jquery.min.js", "bootstrap.min.js", "main.js"))
+    echo $this->Html->script(array("jquery.min.js", "bootstrap.min.js", "main.js")); //
     ?>
 
     <link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,600,700,800' rel='stylesheet' type='text/css' >

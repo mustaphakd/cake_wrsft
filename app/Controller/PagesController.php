@@ -88,6 +88,7 @@ class PagesController extends AppController {
 
             if ($this->LoginViewModel->validates())
             {
+/*
                 $reCaptcha = $this->Components->load('ReCaptcha');
                 $reCaptcha->initialize($this);
 
@@ -102,7 +103,8 @@ class PagesController extends AppController {
                         "class" => "alert alert-danger"
                     ));
                     return;
-                }
+                }*/
+
 
                 $this->loadModel("User");
                 $this->loadModel("Role");
