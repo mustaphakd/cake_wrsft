@@ -2,23 +2,54 @@
  * Created by musta on 11/19/2016.
  */
 
-import { Component, NgZone } from '@angular/core';
-import { OnInit } from '@angular/core';
+import { 
+    Component, NgZone, trigger, Input, AfterContentInit,
+    state,  style,  transition,  animate } from '@angular/core';
+
+import { OnInit, OnChanges, SimpleChanges } from '@angular/core';
 
 import { Article } from './article';
 import {ArticleService} from './article.Service';
 
 @Component({
+    animations: [
+        trigger('articleState', [
+            state('unavailable', style({
+                transform: 'translatex(100%) scale(.5)'
+            })),
+            state('available',   style({
+                transform: 'translatex(0%) scale(1)'
+            })),
+            transition('unavailable => available', animate('1000ms ease-in')),
+            transition('available => unavailable', animate('1000ms ease-out')),
+            /*transition('void => unavailable', [
+                style({transform: 'translateX(-100%) scale(1)'}),
+                animate(2000)
+            ]),
+            transition('unavailable => void', [
+                animate(1000, style({transform: 'translateX(100%) scale(1)'}))
+            ]),*/
+            transition('void => available', [
+                style({transform: 'translateX(100%) scale(0)'}),
+                animate(1000)
+            ]),
+            transition('available => void', [
+                animate(2000, style({transform: 'translateX(0) scale(0)'}))
+            ])
+        ])
+    ],
     selector: 'my-art',
     template: `
-    <div *ngIf=" canProceed() == true" class="top-grid-left col-md-3">
-        <a href="#">
-            <img [src]="article?.image" />
-        </a>
-    </div>
-    <div class="top-grid-center col-md-7">
-    <h2>{{article?.title}}</h2>
-        <p>{{article?.content}}</p> 
+    <div class="container" *ngIf=" canProceed() == true" [@articleState] = "getArticleState()"  >
+        <div  class="top-grid-left col-md-3" >
+            <a href="#">
+                <img [src]="article?.image" />
+            </a>
+        </div>
+        <div class="top-grid-center col-md-7">
+        <h2>{{article?.title}}</h2>
+            <p>{{article?.content}}</p> 
+        </div>
     </div>
     `,
     providers: [ ArticleService ]
@@ -27,13 +58,24 @@ import {ArticleService} from './article.Service';
 export class AppComponent {
     articleAvailable:boolean = false;
     article: Article  ;
+    @Input() endpoint: string = "";
 
     constructor(private zone: NgZone, private articleService: ArticleService){
-        //this.article = <Article>{ };
     }
 
     ngOnInit(): void{
+        
+        this.articleService.endpoint = this.endpoint;
+        console.log("ngOnInit : " + this.endpoint);
         this.loadArticle();
+    }
+
+    ngOnChanges(newVal:{[propName: string] :SimpleChanges}): void{
+        console.log("ngOnChanges : " + this.endpoint);
+    }
+
+    ngAfterViewInit(): void{
+        console.log("ngAfterViewInit : " + this.endpoint);
     }
 
     private canProceed():boolean{
@@ -41,6 +83,12 @@ export class AppComponent {
             return true;
 
         return false
+    }
+
+    private getArticleState(): string {
+        if (this.canProceed())
+            return "available";
+        return "unavailable";
     }
 
     private loadArticle(): void {

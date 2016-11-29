@@ -8,6 +8,16 @@ $this->ReCaptcha->generateScriptTagOnloadCallback('recaptcha'); //
 $this->Html->script(
     array("vendors/shim.min.js","vendors/reflect.js", "vendors/system.src.js", "vendors/zone.js", "articles/systemjs.config.js"),
     array("block" => "script"));
+$this->Html->script(
+    array("https://rawgit.com/web-animations/web-animations-js/master/web-animations.min.js"),
+    array("block" => "script"));
+
+$latestEndpoint = Router::url(
+    array(
+        "controller" => "article",
+        "action" => "latest",
+        "admin" => false
+    ));
 ?>
 
 <!-- start-container---->
@@ -37,12 +47,17 @@ $this->Html->script(
 </div>
 
 <!--start-top-grids---->
-<div class="top-grids">
-    <div class="container">
+<div class="top-grids" style="margin-bottom: -15%;">
 
-        <my-art></my-art>
 
-        <?php /*
+
+    <?php
+
+    echo '<my-art [endpoint]="'.$latestEndpoint.'" > </my-art>';
+    ?>
+
+
+        <?php /*<div class="container">
         <div class="top-grid-left col-md-3">
             <a href="#">
                 <?php echo $this->Html->image("cola_leaf.png",
@@ -64,9 +79,9 @@ $this->Html->script(
                 <div class="clearfix"> </div>
             </ul>
         </div>
-
+</div>
     */?>
-    </div>
+
 </div>
 <!--//End-top-grids---->
 
