@@ -314,6 +314,6 @@ class FileSystemController extends AppController{
     public function beforeFilter(){
         parent::beforeFilter();
 
-        $this->Auth->allow("default_image");
+        $this->Auth->allow(array("default_image", "image"));
     }
 }

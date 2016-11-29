@@ -25,9 +25,7 @@ class SourceMediaController extends AppController
 {
 
     public $uses = array();
-
     public $components = array('RequestHandler');
-
 
     public  function provide(){
 
@@ -73,6 +71,17 @@ class SourceMediaController extends AppController
         }*/
     }
 
+    public function beforeFilter(){
+       // parent::beforeFilter();
+
+        $this->Auth->allow("provide");
+
+        if (!method_exists($this, $this->action)) {
+            unshift($this->params['pass'], $this->action);
+            $this->action = 'provide';
+        }
+    }
+
     private function constructPath($pathArr){
 
         $path = '';
@@ -90,18 +99,6 @@ class SourceMediaController extends AppController
                 $path = implode(DS, $tokens);
                 return $path;
                 break;
-        }
-    }
-
-
-    public function beforeFilter(){
-       // parent::beforeFilter();
-
-        $this->Auth->allow("provide");
-
-        if (!method_exists($this, $this->action)) {
-            unshift($this->params['pass'], $this->action);
-            $this->action = 'provide';
         }
     }
 

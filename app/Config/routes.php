@@ -36,6 +36,7 @@ Router::connect('/', array('controller' => 'pages', 'action' => 'display', 'home
  * ...and connect the rest of 'Pages' controller's URLs.
  */
 	Router::connect('/pages/*', array('controller' => 'pages', 'action' => 'display'));
+    Router::connect('/woroimage/*', array('controller' => 'filesystem', 'action' => 'image'));
     Router::connect('/woromedia/*', array('controller' => 'sourcemedia', 'action' => 'provide'));
 
     Router::mapResources('FileSystem');

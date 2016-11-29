@@ -14,10 +14,10 @@ $this->Html->script(
 
 $latestEndpoint = Router::url(
     array(
-        "controller" => "article",
+        "controller" => "articles",
         "action" => "latest",
         "admin" => false
-    ));
+    ), true);
 ?>
 
 <!-- start-container---->
@@ -47,41 +47,8 @@ $latestEndpoint = Router::url(
 </div>
 
 <!--start-top-grids---->
-<div class="top-grids" style="margin-bottom: -15%;">
-
-
-
-    <?php
-
-    echo '<my-art [endpoint]="'.$latestEndpoint.'" > </my-art>';
-    ?>
-
-
-        <?php /*<div class="container">
-        <div class="top-grid-left col-md-3">
-            <a href="#">
-                <?php echo $this->Html->image("cola_leaf.png",
-                    array( "class" => "img-responsive", "title" => "doc"));
-                ?>
-            </a>
-        </div>
-        <div class="top-grid-center col-md-7"> <!-- <?php  //todo: pull this from db in future release. not urgent. Build and article management feature ?> -->
-            <h2>Relevant News</h2>
-            <p>
-                We are releasing the beta version of LeChef, our  integrated solution for small and medium size restaurants and Hotels. <br /> Please go to
-                the product page to get more information.
-            </p>
-        </div>
-        <div class="top-grid-right col-md-2">
-            <ul>
-                <li><a href="#"><span class="icon1"> </span></a></li>
-                <li><a href="#"><span class="icon2"> </span></a></li>
-                <div class="clearfix"> </div>
-            </ul>
-        </div>
-</div>
-    */?>
-
+<div class="top-grids" style="margin-bottom: -10%;">
+    <?php echo '<my-art [endpoint]="'.$latestEndpoint.'" > </my-art>'; ?>
 </div>
 <!--//End-top-grids---->
 
@@ -171,8 +138,11 @@ $latestEndpoint = Router::url(
 </div>
 <?php $this->ReCaptcha->makeCallAfterFormEnd();
 
+echo $this->Html-> scriptBlock(
+    ' endpoint = "'. $latestEndpoint . '"'  , array("safe" => true, "defer" => false)  );
+
 echo $this->Html->scriptBlock(
-    '
+    '    
     autoBootstrap = true;
             System.import("woromedia/js/articles/main").catch(function(err){ 
                 console.error(err)

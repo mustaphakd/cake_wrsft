@@ -3,10 +3,10 @@
  */
 
 import { 
-    Component, NgZone, trigger, Input, AfterContentInit,
+    Component, NgZone, trigger, Input,
     state,  style,  transition,  animate } from '@angular/core';
 
-import { OnInit, OnChanges, SimpleChanges } from '@angular/core';
+import { OnInit } from '@angular/core';
 
 import { Article } from './article';
 import {ArticleService} from './article.Service';
@@ -53,8 +53,7 @@ import {ArticleService} from './article.Service';
     </div>
     `,
     providers: [ ArticleService ]
-})/* <h2>{{article.title}}</h2>
-        */
+})
 export class AppComponent {
     articleAvailable:boolean = false;
     article: Article  ;
@@ -64,18 +63,9 @@ export class AppComponent {
     }
 
     ngOnInit(): void{
-        
-        this.articleService.endpoint = this.endpoint;
-        console.log("ngOnInit : " + this.endpoint);
+        console.log("global var : " + (<any>window).endpoint);
+        this.articleService.endpoint = (<any>window).endpoint;
         this.loadArticle();
-    }
-
-    ngOnChanges(newVal:{[propName: string] :SimpleChanges}): void{
-        console.log("ngOnChanges : " + this.endpoint);
-    }
-
-    ngAfterViewInit(): void{
-        console.log("ngAfterViewInit : " + this.endpoint);
     }
 
     private canProceed():boolean{
@@ -99,8 +89,10 @@ export class AppComponent {
     }
 
     public processResult(art: Article){
+        debugger;
         this.zone.run(() =>{
             this.article = art;
+            this.article.image = "woroimage" + (<any>this.article).image_path;
             this.articleAvailable = this.article != null;
             console.log("article arrived");
         });
