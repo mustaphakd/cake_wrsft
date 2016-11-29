@@ -18,7 +18,7 @@ $this->Html->script(
             <div class="col-md-6">
                 <!--start-logo---->
                 <div class="well logo">
-                    <a href="#"><?php echo $this->Html->image("woroIcon2.png", array(
+                    <a href="#"><?php echo $this->Html->image("woroIcon4.png", array(
                             "alt" => "Worosoft",
                             "title" => "Worosoft"
                         )); ?></a>

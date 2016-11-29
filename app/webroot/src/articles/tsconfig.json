@@ -7,24 +7,27 @@
     "removeComments": true,
     "preserveConstEnums": true,
     "sourceMap": true,
-    "outDir": "js/",
+    "outDir": "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\js\\articles",
     "declaration": true,
-    "declarationDir": "typings/",
+    "declarationDir": "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\typings\\articles",
     "diagnostics": false,
-    "target": "es5",
+    "target": "es6",
     "emitDecoratorMetadata": true,
     "experimentalDecorators": true,
+    "listEmittedFiles": true,
+    "listFiles": true,
     "suppressImplicitAnyIndexErrors": true,
     "typeRoots": [
-      "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\typings", "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\node_modules\\@types"
+      "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\typings", "/C/xampp/htdocs/demos/worosoft/app/webroot/node_modules/@types/**/*"
     ]
+    ///*"sourceRoot": "src/articles/" */  
   },
   "include": [
-    "src/articles/*"
+    "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\src\\articles\\**\\*"
   ],
   "exclude": [
-    "node_modules",
+    "C:\\xampp\\htdocs\\demos\\worosoft\\app\\webroot\\node_modules\\**\\*",
     "**/*.spec.ts",
-    "typings"
+    "/C/xampp/htdocs/demos/worosoft/app/webroot/typings/**/*"
   ]
 }

@@ -21,11 +21,15 @@
         if (isset($product['Version']) && is_array($product['Version']) && !empty($product['Version'])){
 
             $num_diff_versions = count($product['Version']);
+            $col_lg_cls = " ";
 
             if ($num_diff_versions == 2){
                 $col_lg_cls = "col-md-offset-2";
             }elseif ($num_diff_versions > 2) {
                 $col_lg_cls = "col-md-offset-0";
+            }
+            else{
+                $col_lg_cls = "col-md-offset-4";
             }
 
             $counter = 0;

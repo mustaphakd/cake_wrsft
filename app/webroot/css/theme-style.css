@@ -11,7 +11,7 @@ License URL: http://creativecommons.org/licenses/by/3.0/
 	border:none;
 }
 body{
-	background:#F6F6F7;
+	background: #fdfdfd ; /*    #F6F6F7;*/
 }
 body a{
 	transition:0.5s all;
@@ -1749,4 +1749,10 @@ span.spn-currency{
     height: 50px;
     font-size: 50px;
     width: 50%;
+}
+
+.slide-banner > .col-md-6 > .well{
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
