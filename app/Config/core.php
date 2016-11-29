@@ -34,6 +34,8 @@
 	Configure::write('debug', 2);
     Configure::write(   'DebugKit.panels',  array_merge((array)Configure::read('DebugKit.panels')));
 
+    Configure::write('canRegister', false);
+
 /*
  * reCaptcha
  * */

@@ -265,54 +265,61 @@ class UsersController extends AppController {
 
     public function register()
     {
-        if ($this->request->is('post'))
+        $canRegister = Configure::read("canRegister");
+
+        if ($canRegister == true)
         {
-            if ($this->doesUserExist($this->request->data[$this->User->alias]))
+            if ($this->request->is('post'))
             {
-                $this->Session->setFlash(
-                    __('A user with the same username and/or email already exist'),
-                    "default",
-                    array(
-                        "class" => "alert alert-danger"));
-                return;
-            }
-
-            $this->User->create($this->request->data);
-            $this->User->set("confirmationhash",$this->_generateHash());
-            $this->User->data['Role'] = array($this->RetrieveRole('patron'));
-
-            if ($this->User->validates())
-            {
-                if (!$this->User->save(null, true, array("username", "password", "email", "confirmationhash")))
+                if ($this->doesUserExist($this->request->data[$this->User->alias]))
                 {
+                    $this->Session->setFlash(
+                        __('A user with the same username and/or email already exist'),
+                        "default",
+                        array(
+                            "class" => "alert alert-danger"));
                     return;
                 }
 
-                $href = Router::url(
-                    array(
-                        "controller" => "users",
-                        "action" => "confirm_account",
-                        $this->User->field("confirmationhash")),
-                    true);
+                $this->User->create($this->request->data);
+                $this->User->set("confirmationhash",$this->_generateHash());
+                $this->User->data['Role'] = array($this->RetrieveRole('patron'));
 
-                $userEmail = $this->request->data['User']['email'];
+                if ($this->User->validates())
+                {
+                    if (!$this->User->save(null, true, array("username", "password", "email", "confirmationhash")))
+                    {
+                        return;
+                    }
 
-                unset($this->request->data);
+                    $href = Router::url(
+                        array(
+                            "controller" => "users",
+                            "action" => "confirm_account",
+                            $this->User->field("confirmationhash")),
+                        true);
+
+                    $userEmail = $this->request->data['User']['email'];
+
+                    unset($this->request->data);
 
 
-                //todo: validate sending of email
-                $this->SendEmail(
-                    $userEmail,
-                    $href,
-                    'Click link below to activate your account',
-                    'Account Activation');
+                    //todo: validate sending of email
+                    $this->SendEmail(
+                        $userEmail,
+                        $href,
+                        'Click link below to activate your account',
+                        'Account Activation');
 
-                $this->Session->setFlash('<a href="'. $href .'">  </a>'); //$href
+                    $this->Session->setFlash('<a href="'. $href .'">  </a>'); //$href
 
-                $this->set("message", "An email has been sent to you. click on the link to active your account.");
-                $this->render('/Messages/thanks');
+                    $this->set("message", "An email has been sent to you. click on the link to active your account.");
+                    $this->render('/Messages/thanks');
+                }
             }
         }
+
+        $this->set("registrationIsOpen", $canRegister);
     }
 
     private function RetrieveRole($roleName){

@@ -9,6 +9,9 @@
 
 <div class="payment-online-form-left">
     <?php
+
+    if (isset($registrationIsOpen) && $registrationIsOpen == true) :
+
     echo $this->Form->create(null, array("controller" => "users", "action" => "register", "url" => array("controller" => "users")));
     echo '<fieldset>';
     echo    '<legend>Registration Form</legend>'
@@ -97,7 +100,13 @@
         "div" => "row",
         "before" => '<ul class="payment-sendbtns list-unstyled"><li><input style="margin-right: .02em;" type="reset" value="Reset"></li>'.'<li>',
         "after" => '</li></ul><div class="clearfix"> </div>'
-    ))
+    ));
 
+    else:
+        echo '<fieldset>';
+        echo    '<legend>Registration is currently close!</legend>';
+        echo '</fieldset>';
+
+     endif;
     ?>
 </div>
